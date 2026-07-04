@@ -1,0 +1,13 @@
+{
+  "isDemo": true,
+  "phone": "0871-6888-5200",
+  "wechat": "Yunqi-Kunming",
+  "qrCodeUrl": "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=Yunqi-Kunming",
+  "navigationUrl": "https://uri.amap.com/search?keyword=%E6%98%86%E6%98%8E",
+  "labels": {
+    "phone": "电话咨询",
+    "wechat": "微信问房",
+    "navigation": "地图导航"
+  },
+  "demoNote": "演示联系方式，请替换为真实电话、微信和导航地址。"
+}
