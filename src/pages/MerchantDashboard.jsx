@@ -12,7 +12,7 @@ const dashboardItems = [
 ]
 
 export function MerchantDashboard() {
-  const { user, signOut } = useAuth()
+  const { user, merchant, signOut } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -32,6 +32,14 @@ export function MerchantDashboard() {
     navigate('/merchant/login', { replace: true })
   }
 
+  const loginAccount = user?.phone || user?.email || user?.name || '已绑定账号'
+  const loginProvider = merchant?.provider || user?.provider || 'phone'
+  const providerLabel = {
+    phone: '手机号验证码',
+    wechat: '微信登录',
+    alipay: '支付宝登录'
+  }[loginProvider] || loginProvider
+
   return (
     <main className="merchantDashboardPage">
       <header className="merchantDashboardTop">
@@ -46,7 +54,11 @@ export function MerchantDashboard() {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}>
           <span className="dashboardEyebrow">商家管理中心</span>
           <h1>欢迎回来</h1>
-          <p>当前登录邮箱：{user?.email}</p>
+          <div className="merchantIdentityPanel">
+            <span>当前商家名称：{merchant?.merchant_name || merchant?.merchantId || '云栖小院'}</span>
+            <span>当前登录方式：{providerLabel}</span>
+            <span>当前手机号或绑定账号：{loginAccount}</span>
+          </div>
         </motion.div>
       </section>
 

@@ -1,116 +1,148 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { supabase, supabaseConfigError } from '../lib/supabase'
+import {
+  authing,
+  authingConfigError,
+  loginByPhoneCode,
+  loginWithProvider,
+  sendPhoneCode
+} from '../lib/authing'
 
 const AuthContext = createContext(null)
 
-function hasMerchantAccess(user) {
-  if (!user) return false
-  const appRole = user.app_metadata?.role
-  const appRoles = user.app_metadata?.roles
-  const userRole = user.user_metadata?.role
-  return appRole === 'merchant' || userRole === 'merchant' || (Array.isArray(appRoles) && appRoles.includes('merchant'))
-}
-
-function publicUser(user) {
-  if (!user) return null
+function publicUser(userInfo, loginState) {
+  if (!userInfo && !loginState) return null
   return {
-    id: user.id,
-    email: user.email,
-    app_metadata: user.app_metadata,
-    user_metadata: user.user_metadata
+    id: userInfo?.sub || userInfo?.userId || loginState?.parsedIdToken?.sub,
+    phone: userInfo?.phone_number || userInfo?.phone || loginState?.parsedIdToken?.phone_number,
+    email: userInfo?.email || loginState?.parsedIdToken?.email,
+    name: userInfo?.name || userInfo?.nickname || loginState?.parsedIdToken?.name,
+    picture: userInfo?.picture,
+    provider: userInfo?.identities?.[0]?.provider || loginState?.customState?.provider || 'phone'
   }
 }
 
+async function fetchMerchantProfile(accessToken) {
+  const response = await fetch('/api/merchant/me', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  if (response.status === 401) throw new Error('UNAUTHENTICATED')
+  if (response.status === 403) throw new Error('NO_MERCHANT_PERMISSION')
+  if (!response.ok) throw new Error('MERCHANT_PROFILE_FAILED')
+  return response.json()
+}
+
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(null)
+  const [loginState, setLoginState] = useState(null)
   const [user, setUser] = useState(null)
+  const [merchant, setMerchant] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [authError, setAuthError] = useState('')
+
+  const clearAuthData = () => {
+    setLoginState(null)
+    setUser(null)
+    setMerchant(null)
+  }
+
+  const verifyMerchant = async (state) => {
+    if (!state?.accessToken) throw new Error('UNAUTHENTICATED')
+    const [userInfo, merchantProfile] = await Promise.all([
+      authing.getUserInfo({ accessToken: state.accessToken }),
+      fetchMerchantProfile(state.accessToken)
+    ])
+    if (userInfo?.statusCode >= 400) throw new Error('UNAUTHENTICATED')
+    setLoginState(state)
+    setUser(publicUser(userInfo, state))
+    setMerchant(merchantProfile.merchant)
+    return { userInfo, merchant: merchantProfile.merchant }
+  }
 
   useEffect(() => {
     let mounted = true
 
-    if (!supabase) {
-      setLoading(false)
-      return undefined
-    }
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return
-      const nextUser = data.session?.user ?? null
-      if (nextUser && !hasMerchantAccess(nextUser)) {
-        supabase.auth.signOut()
-        setSession(null)
-        setUser(null)
-      } else {
-        setSession(data.session ?? null)
-        setUser(publicUser(nextUser))
-      }
-      setLoading(false)
-    })
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      const nextUser = nextSession?.user ?? null
-      if (nextUser && !hasMerchantAccess(nextUser)) {
-        supabase.auth.signOut()
-        setSession(null)
-        setUser(null)
+    async function restoreSession() {
+      if (!authing) {
         setLoading(false)
         return
       }
-      setSession(nextSession ?? null)
-      setUser(publicUser(nextUser))
-      setLoading(false)
-    })
 
+      try {
+        const state = await authing.getLoginState()
+        if (!mounted) return
+        if (!state) {
+          clearAuthData()
+          setLoading(false)
+          return
+        }
+        await verifyMerchant(state)
+      } catch (error) {
+        if (mounted) {
+          clearAuthData()
+          setAuthError(error.message)
+        }
+      } finally {
+        if (mounted) setLoading(false)
+      }
+    }
+
+    restoreSession()
     return () => {
       mounted = false
-      listener.subscription.unsubscribe()
     }
   }, [])
 
-  const signIn = async ({ email, password }) => {
-    if (!supabase) {
-      return { error: { message: supabaseConfigError || 'Supabase 未正确配置。' } }
-    }
+  const requestPhoneCode = async (phone) => sendPhoneCode(phone)
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) return { error }
-
-    if (!hasMerchantAccess(data.user)) {
-      await supabase.auth.signOut()
-      setSession(null)
-      setUser(null)
-      return { error: { message: 'NO_MERCHANT_PERMISSION' } }
-    }
-
-    setSession(data.session)
-    setUser(publicUser(data.user))
-    return { data }
+  const signInWithPhone = async ({ phone, code }) => {
+    const state = await loginByPhoneCode(phone, code)
+    return verifyMerchant(state)
   }
 
-  const signOut = async () => {
-    if (supabase) await supabase.auth.signOut()
-    setSession(null)
-    setUser(null)
+  const signInWithWechat = () => loginWithProvider('wechat')
+  const signInWithAlipay = () => loginWithProvider('alipay')
+
+  const handleRedirectCallback = async () => {
+    if (!authing) throw new Error(authingConfigError)
+    const state = authing.isRedirectCallback()
+      ? await authing.handleRedirectCallback()
+      : await authing.getLoginState({ ignoreCache: true })
+    return verifyMerchant(state)
+  }
+
+  const signOut = async (options = {}) => {
+    clearAuthData()
+    if (options.localOnly) return
+    if (authing) {
+      await authing.logoutWithRedirect({ redirectUri: `${window.location.origin}/merchant/login` })
+    }
   }
 
   const value = useMemo(() => ({
     user,
-    session,
+    merchant,
+    session: loginState,
+    token: loginState?.accessToken,
     loading,
-    isAuthenticated: Boolean(session && user),
-    signIn,
+    authError,
+    isAuthenticated: Boolean(loginState?.accessToken && user && merchant),
+    configError: authingConfigError,
+    requestPhoneCode,
+    signInWithPhone,
+    signInWithWechat,
+    signInWithAlipay,
+    handleRedirectCallback,
     signOut,
-    configError: supabaseConfigError
-  }), [user, session, loading])
+    verifyMerchant
+  }), [user, merchant, loginState, loading, authError])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used inside AuthProvider')
-  }
+  if (!context) throw new Error('useAuth must be used inside AuthProvider')
   return context
 }

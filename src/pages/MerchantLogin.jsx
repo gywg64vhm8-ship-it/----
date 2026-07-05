@@ -1,25 +1,37 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Eye, EyeOff, Home } from 'lucide-react'
+import { Home, MessageCircle, Smartphone } from 'lucide-react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { isMainlandPhone } from '../lib/authing'
 import { useAuth } from '../context/AuthContext'
 import { AuthLoadingScreen } from '../components/auth/ProtectedRoute'
 
 function normalizeError(error) {
   const message = error?.message || ''
-  if (message === 'NO_MERCHANT_PERMISSION') return '当前账号没有商家权限'
-  if (message.includes('Supabase 环境变量缺失')) return message
-  if (message.toLowerCase().includes('invalid login credentials')) return '账号或密码错误'
-  if (message.toLowerCase().includes('email')) return '请输入有效邮箱'
-  return '登录请求失败，请稍后再试'
+  if (message === 'NO_MERCHANT_PERMISSION') return '当前账号未开通商家权限'
+  if (message === 'no_permission') return '当前账号未开通商家权限'
+  if (message.includes('TOO_MANY') || message.includes('频繁')) return '验证码发送过于频繁'
+  if (message.includes('验证码') || message.includes('passCode') || message.includes('code')) return '验证码错误或已过期'
+  if (message.includes('Authing 环境变量缺失')) return message
+  return '登录失败，请稍后重试'
 }
 
 export function MerchantLogin() {
-  const { signIn, isAuthenticated, loading, configError } = useAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+  const {
+    isAuthenticated,
+    loading,
+    configError,
+    requestPhoneCode,
+    signInWithPhone,
+    signInWithWechat,
+    signInWithAlipay
+  } = useAuth()
+  const [phone, setPhone] = useState('')
+  const [code, setCode] = useState('')
+  const [accepted, setAccepted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [sendingCode, setSendingCode] = useState(false)
+  const [countdown, setCountdown] = useState(0)
   const [error, setError] = useState('')
   const location = useLocation()
   const navigate = useNavigate()
@@ -31,7 +43,7 @@ export function MerchantLogin() {
   }, [location.search])
 
   useEffect(() => {
-    document.title = '商家登录 | 云栖小院'
+    document.title = '商家管理中心 | 云栖小院'
     const robots = document.querySelector('meta[name="robots"]') ?? document.createElement('meta')
     robots.setAttribute('name', 'robots')
     robots.setAttribute('content', 'noindex, nofollow')
@@ -42,30 +54,87 @@ export function MerchantLogin() {
     }
   }, [])
 
-  if (loading) return <AuthLoadingScreen />
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const nextError = params.get('error')
+    if (nextError === 'alipay_cancel') setError('支付宝授权未完成')
+    if (nextError === 'no_permission') setError('当前账号未开通商家权限')
+  }, [location.search])
+
+  useEffect(() => {
+    if (countdown <= 0) return undefined
+    const timer = window.setTimeout(() => setCountdown((value) => value - 1), 1000)
+    return () => window.clearTimeout(timer)
+  }, [countdown])
+
+  if (loading) return <AuthLoadingScreen text="正在检查登录状态..." />
   if (isAuthenticated) return <Navigate to="/merchant/dashboard" replace />
+
+  const handleSendCode = async () => {
+    if (sendingCode || countdown > 0) return
+    const trimmedPhone = phone.trim()
+    if (!isMainlandPhone(trimmedPhone)) {
+      setError('请输入正确手机号')
+      return
+    }
+    if (!accepted) {
+      setError('请先确认用户协议和隐私政策')
+      return
+    }
+
+    setError('')
+    setSendingCode(true)
+    try {
+      await requestPhoneCode(trimmedPhone)
+      setCountdown(60)
+    } catch (sendError) {
+      setError(normalizeError(sendError))
+    } finally {
+      setSendingCode(false)
+    }
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
     if (submitting) return
+    const trimmedPhone = phone.trim()
+    if (!isMainlandPhone(trimmedPhone)) {
+      setError('请输入正确手机号')
+      return
+    }
+    if (!code.trim()) {
+      setError('验证码错误或已过期')
+      return
+    }
+    if (!accepted) {
+      setError('请先确认用户协议和隐私政策')
+      return
+    }
 
     setError('')
-    const trimmedEmail = email.trim()
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      setError('请输入有效邮箱')
-      return
-    }
-
     setSubmitting(true)
-    const { error: signInError } = await signIn({ email: trimmedEmail, password })
-    setSubmitting(false)
-
-    if (signInError) {
+    try {
+      await signInWithPhone({ phone: trimmedPhone, code: code.trim() })
+      navigate(redirectTo, { replace: true })
+    } catch (signInError) {
       setError(normalizeError(signInError))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleProviderLogin = async (provider) => {
+    if (!accepted) {
+      setError('请先确认用户协议和隐私政策')
       return
     }
-
-    navigate(redirectTo, { replace: true })
+    setError('')
+    try {
+      if (provider === 'wechat') await signInWithWechat()
+      if (provider === 'alipay') await signInWithAlipay()
+    } catch (providerError) {
+      setError(provider === 'alipay' && providerError?.message === 'cancelled' ? '支付宝授权未完成' : '登录失败，请稍后重试')
+    }
   }
 
   return (
@@ -73,54 +142,73 @@ export function MerchantLogin() {
       <motion.form className="merchantLoginCard" onSubmit={handleSubmit} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
         <Link to="/" className="merchantBrand">云栖小院</Link>
         <div className="merchantLoginTitle">
-          <h1>商家登录</h1>
-          <p>登录后进入民宿管理中心</p>
+          <h1>商家管理中心</h1>
+          <p>请选择登录方式，登录后管理民宿资料</p>
         </div>
 
         {configError && <p className="authConfigError">{configError}</p>}
         {error && <p className="authError">{error}</p>}
 
         <label className="authField">
-          <span>邮箱</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            autoComplete="email"
-            placeholder="请输入商家邮箱"
-            disabled={submitting}
-          />
+          <span>手机号</span>
+          <div className="phoneInputWrap">
+            <strong>+86</strong>
+            <input
+              type="tel"
+              inputMode="numeric"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value.replace(/\D/g, '').slice(0, 11))}
+              autoComplete="tel"
+              placeholder="请输入中国大陆手机号"
+              disabled={submitting}
+            />
+          </div>
         </label>
 
         <label className="authField">
-          <span>密码</span>
-          <div className="passwordInputWrap">
+          <span>验证码</span>
+          <div className="codeInputWrap">
             <input
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              autoComplete="current-password"
-              placeholder="请输入密码"
+              type="text"
+              inputMode="numeric"
+              value={code}
+              onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 8))}
+              autoComplete="one-time-code"
+              placeholder="请输入短信验证码"
               disabled={submitting}
             />
-            <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? '隐藏密码' : '显示密码'} disabled={submitting}>
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            <button type="button" onClick={handleSendCode} disabled={sendingCode || countdown > 0 || Boolean(configError)}>
+              {countdown > 0 ? `${countdown}秒后重发` : sendingCode ? '发送中...' : '获取验证码'}
             </button>
           </div>
         </label>
 
-        <p className="keepLoginHint">保持登录提示：浏览器会使用 Supabase 安全会话保持登录状态，请勿在公共设备上保存登录。</p>
+        <label className="agreementCheck">
+          <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} />
+          <span>我已阅读并同意用户协议和隐私政策</span>
+        </label>
 
         <button className="merchantLoginButton" type="submit" disabled={submitting || Boolean(configError)}>
           {submitting ? '正在登录...' : '登录'}
         </button>
+
+        <div className="socialLoginBlock">
+          <p>其他登录方式</p>
+          <button type="button" className="socialLoginButton" onClick={() => handleProviderLogin('wechat')} disabled={Boolean(configError)}>
+            <MessageCircle size={18} />
+            微信登录
+          </button>
+          <button type="button" className="socialLoginButton" onClick={() => handleProviderLogin('alipay')} disabled={Boolean(configError)}>
+            <Smartphone size={18} />
+            支付宝登录
+          </button>
+        </div>
 
         <div className="merchantLoginLinks">
           <Link to="/">
             <Home size={17} />
             返回顾客端
           </Link>
-          <span>忘记密码请联系管理员在 Supabase 后台重置。</span>
         </div>
       </motion.form>
     </main>

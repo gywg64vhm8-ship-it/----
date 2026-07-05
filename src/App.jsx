@@ -45,6 +45,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { useAuth } from './context/AuthContext'
 import { MerchantLogin } from './pages/MerchantLogin'
 import { MerchantDashboard } from './pages/MerchantDashboard'
+import { AuthCallback } from './pages/AuthCallback'
 
 const ease = [0.22, 1, 0.36, 1]
 
@@ -1021,6 +1022,7 @@ export function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/business" element={<BusinessPage />} />
       <Route path="/merchant/login" element={<MerchantLogin />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route
         path="/merchant/dashboard"
         element={
@@ -1029,6 +1031,17 @@ export function App() {
           </ProtectedRoute>
         }
       />
+      {['/merchant/rooms', '/merchant/faq', '/merchant/guides', '/merchant/contact'].map((path) => (
+        <Route
+          key={path}
+          path={path}
+          element={
+            <ProtectedRoute>
+              <MerchantDashboard />
+            </ProtectedRoute>
+          }
+        />
+      ))}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

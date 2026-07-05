@@ -9,7 +9,7 @@
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.110.0",
+    "@authing/web": "^5.1.21",
     "framer-motion": "^12.42.2",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
