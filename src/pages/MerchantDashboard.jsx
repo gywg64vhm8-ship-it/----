@@ -50,7 +50,7 @@ export function MerchantDashboard() {
         </motion.div>
       </section>
 
-      <section className="merchantDashboardGrid" aria-label="商家管理入口">
+      <section className="merchantDashboardGrid" aria-label="商家功能入口">
         {dashboardItems.map(([title, description, Icon], index) => (
           <motion.article key={title} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.36, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}>
             <Icon size={24} />

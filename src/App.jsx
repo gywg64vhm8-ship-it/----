@@ -143,24 +143,23 @@ function Header({ isBusiness = false }) {
   const { scrollYProgress } = useScroll()
   const links = isBusiness
     ? [
+        ['功能介绍', '#features'],
         ['顾客端演示', '/'],
-        ['套餐', '#packages'],
-        ['流程', '#process'],
-        ['常见问题', '#business-faq'],
-        ['商家登录', isAuthenticated ? '/merchant/dashboard' : '/merchant/login']
+        ['服务套餐', '#packages'],
+        ['合作流程', '#process'],
+        ['商家登录', isAuthenticated ? '/merchant/dashboard' : '/merchant/login'],
+        ['获取方案', '#contact-plan']
       ]
     : [
         ['房型', '#rooms'],
-        ['空间', '#top'],
+        ['环境', '#top'],
         ['攻略', '#guide'],
         ['常见问题', '#consult'],
-        ['商家合作', '/business'],
-        ['商家登录', isAuthenticated ? '/merchant/dashboard' : '/merchant/login'],
         ['预订房间', '#rooms']
       ]
 
   useEffect(() => {
-    const sections = isBusiness ? ['packages', 'process', 'business-faq'] : ['rooms', 'consult', 'guide', 'transport']
+    const sections = isBusiness ? ['features', 'packages', 'process', 'business-faq'] : ['rooms', 'consult', 'guide', 'transport']
     const update = () => {
       setScrolled(window.scrollY > 60)
       const current = sections.findLast((id) => {
@@ -187,9 +186,18 @@ function Header({ isBusiness = false }) {
         </button>
         <nav className={`navLinks ${open ? 'isOpen' : ''}`} aria-label="页面导航">
           {links.map(([label, href]) => (
-            <a key={label} href={href} className={`${active === href ? 'isActive' : ''} ${label === '预订房间' ? 'navCta' : ''}`} onClick={() => setOpen(false)}>
-              {label}
-            </a>
+            label === '获取方案' ? (
+              <button key={label} type="button" className="navCta" onClick={() => {
+                setOpen(false)
+                window.dispatchEvent(new CustomEvent('open-business-contact'))
+              }}>
+                {label}
+              </button>
+            ) : (
+              <a key={label} href={href} className={`${active === href ? 'isActive' : ''} ${label === '预订房间' ? 'navCta' : ''}`} onClick={() => setOpen(false)}>
+                {label}
+              </a>
+            )
           ))}
         </nav>
       </header>
@@ -801,6 +809,7 @@ function ContactFooter({ onWechat }) {
         </article>
       </div>
       <p className="footerCopyright">云栖小院智能接待功能演示，民宿名称、价格和联系方式均为演示数据。</p>
+      <a className="merchantEntryLink" href="/merchant/login">商家管理入口</a>
     </RevealSection>
   )
 }
@@ -881,6 +890,11 @@ function BusinessPage() {
     ['能保证带来多少订单吗？', '不承诺具体订单数量。页面能提升信息展示和咨询承接效率，实际转化还取决于房源、价格、流量和运营。']
   ]
 
+  useEffect(() => {
+    window.addEventListener('open-business-contact', openContact)
+    return () => window.removeEventListener('open-business-contact', openContact)
+  }, [])
+
   return (
     <>
       <Header isBusiness />
@@ -898,7 +912,7 @@ function BusinessPage() {
           </motion.div>
         </section>
 
-        <RevealSection className="businessSection">
+        <RevealSection className="businessSection" id="features">
           <StaggerGroup className="businessFeatureGrid">
             {features.map(([title, text]) => (
               <motion.article className="businessCard" key={title} variants={revealVariants}>
@@ -947,7 +961,7 @@ function BusinessPage() {
               </motion.article>
             ))}
           </StaggerGroup>
-          <button type="button" className="packageCta pulseCta" onClick={openContact}>获取同款民宿智能接待页面</button>
+          <button type="button" className="packageCta pulseCta" id="contact-plan" onClick={openContact}>获取同款民宿智能接待页面</button>
         </RevealSection>
 
         <RevealSection className="businessSection processSection" id="process">

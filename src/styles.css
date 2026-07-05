@@ -143,6 +143,19 @@ button {
   border-radius: var(--radius);
 }
 
+.navLinks button {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
 .hero {
   position: relative;
   min-height: 670px;
@@ -1236,6 +1249,11 @@ button {
     padding: 0;
   }
 
+  .navLinks button {
+    min-height: auto;
+    padding: 0;
+  }
+
   .topNav {
     padding: 0 34px;
     min-height: 64px;
@@ -1565,7 +1583,14 @@ button {
   font-weight: 780;
 }
 
-.navLinks .navCta {
+.navLinks button {
+  min-height: 36px;
+  font-size: 15px;
+  font-weight: 780;
+}
+
+.navLinks .navCta,
+.navLinks button.navCta {
   min-height: 38px;
   padding-inline: 18px;
   border-radius: 6px;
@@ -2132,6 +2157,21 @@ button {
   font-size: 14px;
   line-height: 1.7;
   text-align: center;
+}
+
+.merchantEntryLink {
+  display: block;
+  width: fit-content;
+  margin: 8px auto 0;
+  color: rgba(111, 58, 38, 0.56);
+  font-size: 13px;
+  line-height: 1.6;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.merchantEntryLink:hover {
+  color: var(--accent-dark);
 }
 
 .floatingContact {
