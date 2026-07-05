@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import {
   AnimatePresence,
   motion,
@@ -40,6 +41,10 @@ import {
 import homestay from './data/homestay.json'
 import { contactConfig, demoContactNote } from './config/contact'
 import { findAnswer } from './lib/faq'
+import { ProtectedRoute } from './components/auth/ProtectedRoute'
+import { useAuth } from './context/AuthContext'
+import { MerchantLogin } from './pages/MerchantLogin'
+import { MerchantDashboard } from './pages/MerchantDashboard'
 
 const ease = [0.22, 1, 0.36, 1]
 
@@ -134,20 +139,23 @@ function Header({ isBusiness = false }) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [active, setActive] = useState('')
+  const { isAuthenticated } = useAuth()
   const { scrollYProgress } = useScroll()
   const links = isBusiness
     ? [
         ['顾客端演示', '/'],
         ['套餐', '#packages'],
         ['流程', '#process'],
-        ['常见问题', '#business-faq']
+        ['常见问题', '#business-faq'],
+        ['商家登录', isAuthenticated ? '/merchant/dashboard' : '/merchant/login']
       ]
     : [
         ['房型', '#rooms'],
         ['空间', '#top'],
         ['攻略', '#guide'],
         ['常见问题', '#consult'],
-        ['商家版', '/business'],
+        ['商家合作', '/business'],
+        ['商家登录', isAuthenticated ? '/merchant/dashboard' : '/merchant/login'],
         ['预订房间', '#rooms']
       ]
 
@@ -224,7 +232,7 @@ function WechatModal({ onClose }) {
         <h2 id="wechat-modal-title">添加管家微信</h2>
         <p>添加时请备注“订房咨询”。</p>
         <div className="qrFrame">
-          <img src={contactConfig.wechatQr} alt={`微信号 ${contactConfig.wechatId} 二维码`} loading="lazy" />
+          <img src={contactConfig.wechatQr} alt={`微信号 ${contactConfig.wechatId} 二维码`} loading="lazy" decoding="async" width="420" height="420" />
         </div>
         <strong className="wechatId">微信号：{contactConfig.wechatId}</strong>
         <div className="contactModalActions">
@@ -289,7 +297,19 @@ function Hero({ brand, onContactChoice }) {
   return (
     <section className="hero" id="top" ref={ref}>
       <div className="hero__imageWrap">
-        <motion.img src={brand.heroImage} alt={`${brand.name}客房实拍`} className="hero__image" loading="eager" style={{ y }} />
+        <motion.picture className="hero__picture" style={{ y }}>
+          <source media="(max-width: 767px)" srcSet={brand.heroImageMobile} />
+          <img
+            src={brand.heroImage}
+            alt={`${brand.name}民宿房间实拍`}
+            className="hero__image"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            width="1536"
+            height="1024"
+          />
+        </motion.picture>
       </div>
       <motion.div className="hero__content" initial="hidden" animate="visible" variants={staggerContainer}>
         <motion.p className="siteName" variants={revealVariants} custom={20}>昆明 · 慢生活民宿</motion.p>
@@ -340,7 +360,7 @@ function RoomCard({ room, onOpen }) {
   return (
     <motion.article className="roomCard" variants={revealVariants}>
       <button className="roomCard__mediaButton" type="button" onClick={() => onOpen(room)}>
-        <img src={room.image} alt={room.name} className="roomCard__image" loading="lazy" />
+        <img src={room.image} alt={room.name} className="roomCard__image" loading="lazy" decoding="async" width="800" height="600" />
       </button>
       <div className="roomCard__body">
         <div className="roomCard__head">
@@ -391,7 +411,7 @@ function RoomModal({ room, onClose, onWechat }) {
         </button>
         <div className="roomGallery">
           <AnimatePresence mode="wait">
-            <motion.img key={image} src={image} alt={`${room.name}图片 ${index + 1}`} loading="lazy" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} />
+            <motion.img key={image} src={image} alt={`${room.name}图片 ${index + 1}`} loading="lazy" decoding="async" width="800" height="600" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} />
           </AnimatePresence>
           <button className="galleryButton galleryButton--prev" type="button" onClick={previous} aria-label="上一张">
             <ChevronLeft size={22} />
@@ -750,7 +770,7 @@ function ContactFooter({ onWechat }) {
         <article className="contactFooterCard qrContactCard">
           <h2>扫码添加微信</h2>
           <div className="footerQrFrame">
-            <img src={contactConfig.wechatQr} alt={`微信号 ${contactConfig.wechatId} 二维码`} loading="lazy" />
+            <img src={contactConfig.wechatQr} alt={`微信号 ${contactConfig.wechatId} 二维码`} loading="lazy" decoding="async" width="420" height="420" />
           </div>
           <strong>微信号：{contactConfig.wechatId}</strong>
           <button type="button" onClick={copyWechat}>
@@ -982,6 +1002,20 @@ function BusinessPage() {
 }
 
 export function App() {
-  const isBusiness = window.location.pathname === '/business'
-  return isBusiness ? <BusinessPage /> : <HomePage />
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/business" element={<BusinessPage />} />
+      <Route path="/merchant/login" element={<MerchantLogin />} />
+      <Route
+        path="/merchant/dashboard"
+        element={
+          <ProtectedRoute>
+            <MerchantDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
 }

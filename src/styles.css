@@ -156,6 +156,7 @@ button {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  background: #eadfce;
 }
 
 .hero__imageWrap::after {
@@ -170,9 +171,14 @@ button {
   );
 }
 
+.hero__picture,
 .hero__image {
+  display: block;
   width: 100%;
   height: calc(100% + 60px);
+}
+
+.hero__image {
   object-fit: cover;
 }
 
@@ -990,7 +996,7 @@ button {
   padding: 64px 18px;
   background:
     linear-gradient(90deg, rgba(38, 29, 20, 0.78), rgba(38, 29, 20, 0.22)),
-    url("/images/hero-room.jpg") center / cover;
+    url("/images/hero-desktop.webp") center / cover;
   color: white;
 }
 
@@ -1897,7 +1903,7 @@ button {
   padding: 34px 18px 36px;
   background:
     linear-gradient(90deg, rgba(255, 246, 234, 0.92), rgba(255, 246, 234, 0.78)),
-    url("/images/family-room.jpg") right center / auto 150% no-repeat;
+    url("/images/family-bg.webp") right center / auto 150% no-repeat;
 }
 
 .closing h2 {
@@ -2295,7 +2301,7 @@ button {
     margin-bottom: 34px;
     background:
       linear-gradient(90deg, rgba(255, 246, 234, 0.96), rgba(255, 246, 234, 0.88)),
-      url("/images/family-room.jpg") right bottom / auto 100% no-repeat;
+      url("/images/family-bg.webp") right bottom / auto 100% no-repeat;
   }
 
   .contactFooter {
@@ -2340,6 +2346,328 @@ button {
 
   .quickQuestions button {
     max-width: 100%;
+  }
+}
+
+.authLoadingScreen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+  padding: 24px;
+  background:
+    linear-gradient(180deg, rgba(251, 250, 246, 0.94), rgba(244, 234, 220, 0.64)),
+    var(--bg);
+  color: var(--accent-dark);
+}
+
+.authLoadingScreen span {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: authSpin 900ms linear infinite;
+}
+
+.authLoadingScreen p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+@keyframes authSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.merchantLoginPage,
+.merchantDashboardPage {
+  min-height: 100vh;
+  background:
+    linear-gradient(135deg, rgba(255, 253, 248, 0.92), rgba(244, 234, 220, 0.78)),
+    url("/images/family-bg.webp") right bottom / auto 100% no-repeat,
+    var(--bg);
+  color: var(--ink);
+}
+
+.merchantLoginPage {
+  display: grid;
+  place-items: center;
+  padding: 28px 16px;
+}
+
+.merchantLoginCard {
+  width: min(100%, 430px);
+  padding: 28px;
+  border: 1px solid rgba(230, 217, 201, 0.95);
+  border-radius: 12px;
+  background: rgba(255, 253, 248, 0.96);
+  box-shadow: 0 22px 60px rgba(80, 58, 38, 0.15);
+  backdrop-filter: blur(12px);
+}
+
+.merchantBrand {
+  display: inline-flex;
+  margin-bottom: 22px;
+  font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
+  color: var(--accent-dark);
+  font-size: 28px;
+  font-weight: 850;
+}
+
+.merchantLoginTitle h1,
+.merchantDashboardHero h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
+  color: var(--accent-dark);
+  font-size: clamp(32px, 4vw, 46px);
+  line-height: 1.12;
+}
+
+.merchantLoginTitle p,
+.merchantDashboardHero p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.authConfigError,
+.authError {
+  margin: 16px 0 0;
+  padding: 12px 13px;
+  border-radius: var(--radius);
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.authConfigError {
+  border: 1px solid rgba(156, 85, 56, 0.34);
+  background: #fff4e7;
+  color: var(--accent-dark);
+}
+
+.authError {
+  border: 1px solid rgba(156, 85, 56, 0.4);
+  background: #fff1ed;
+  color: #8f3528;
+}
+
+.authField {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.authField span {
+  color: var(--accent-dark);
+  font-weight: 850;
+}
+
+.authField input {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0 13px;
+  background: #fff;
+  color: var(--ink);
+  outline: none;
+}
+
+.authField input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(156, 85, 56, 0.14);
+}
+
+.passwordInputWrap {
+  position: relative;
+}
+
+.passwordInputWrap input {
+  padding-right: 48px;
+}
+
+.passwordInputWrap button {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--accent-dark);
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.keepLoginHint {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.merchantLoginButton {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 18px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.merchantLoginButton:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.merchantLoginLinks {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.merchantLoginLinks a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  color: var(--accent-dark);
+  font-weight: 850;
+}
+
+.merchantDashboardPage {
+  padding: 0 18px 56px;
+}
+
+.merchantDashboardTop {
+  width: min(100%, 1180px);
+  min-height: 68px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.merchantDashboardTop button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.92);
+  color: var(--accent-dark);
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.merchantDashboardHero,
+.merchantDashboardGrid {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+}
+
+.merchantDashboardHero {
+  padding: 52px 0 28px;
+}
+
+.dashboardEyebrow {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #f4eadc;
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.merchantDashboardGrid {
+  display: grid;
+  gap: 16px;
+}
+
+.merchantDashboardGrid article {
+  padding: 22px;
+  border: 1px solid rgba(230, 217, 201, 0.95);
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.96);
+  box-shadow: 0 14px 34px rgba(80, 58, 38, 0.1);
+}
+
+.merchantDashboardGrid svg {
+  color: var(--accent);
+}
+
+.merchantDashboardGrid h2 {
+  margin: 14px 0 8px;
+  color: var(--accent-dark);
+  font-size: 22px;
+}
+
+.merchantDashboardGrid p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.merchantDashboardGrid article button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  margin-top: 18px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fffaf2;
+  color: var(--accent-dark);
+  font-weight: 850;
+}
+
+@media (min-width: 768px) {
+  .merchantDashboardGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1180px) {
+  .merchantDashboardGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .merchantLoginCard {
+    padding: 22px 18px;
+  }
+
+  .merchantDashboardTop {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px 0;
+  }
+
+  .merchantDashboardTop button {
+    width: 100%;
   }
 }
 

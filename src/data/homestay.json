@@ -3,14 +3,15 @@
     "name": "云栖小院",
     "tagline": "住进昆明的慢时光，醒来就是花香和风。",
     "description": "位于昆明市区与滇池方向之间，适合短住旅行、亲子周末和看花看湖的轻松行程。",
-    "heroImage": "/images/hero-room.jpg"
+    "heroImage": "/images/hero-desktop.webp",
+    "heroImageMobile": "/images/hero-mobile.webp"
   },
   "rooms": [
     {
       "id": "garden-queen",
       "name": "花院大床房",
-      "image": "/images/hero-room.jpg",
-      "gallery": ["/images/hero-room.jpg", "/images/twin-room.jpg", "/images/family-room.jpg"],
+      "image": "/images/room-garden-800.webp",
+      "gallery": ["/images/room-garden-800.webp", "/images/room-twin-800.webp", "/images/room-family-800.webp"],
       "capacity": "2人",
       "bed": "1张1.8米大床",
       "facilities": ["独立卫浴", "投影", "小阳台", "茶具", "空调"],
@@ -25,8 +26,8 @@
     {
       "id": "sunny-twin",
       "name": "晴窗双床房",
-      "image": "/images/twin-room.jpg",
-      "gallery": ["/images/twin-room.jpg", "/images/hero-room.jpg", "/images/family-room.jpg"],
+      "image": "/images/room-twin-800.webp",
+      "gallery": ["/images/room-twin-800.webp", "/images/room-garden-800.webp", "/images/room-family-800.webp"],
       "capacity": "2-3人",
       "bed": "2张1.2米单人床",
       "facilities": ["采光好", "书桌", "洗衣区", "热水", "Wi-Fi"],
@@ -41,8 +42,8 @@
     {
       "id": "family-suite",
       "name": "亲子家庭房",
-      "image": "/images/family-room.jpg",
-      "gallery": ["/images/family-room.jpg", "/images/twin-room.jpg", "/images/hero-room.jpg"],
+      "image": "/images/room-family-800.webp",
+      "gallery": ["/images/room-family-800.webp", "/images/room-twin-800.webp", "/images/room-garden-800.webp"],
       "capacity": "3-4人",
       "bed": "1张1.8米大床 + 1张沙发床",
       "facilities": ["儿童用品", "小冰箱", "休闲茶几", "加湿器", "行李区"],
