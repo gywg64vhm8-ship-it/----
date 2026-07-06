@@ -7,6 +7,10 @@ import {
 
 const AuthContext = createContext(null)
 
+export function getAccessToken(loginState) {
+  return loginState?.accessToken || loginState?.access_token || ''
+}
+
 function publicUser(userInfo, loginState) {
   if (!userInfo && !loginState) return null
   return {
@@ -19,17 +23,31 @@ function publicUser(userInfo, loginState) {
   }
 }
 
-async function fetchMerchantProfile(accessToken) {
+async function verifyMerchantProfile(accessToken) {
+  if (!accessToken) {
+    const error = new Error('missing_access_token')
+    error.status = 401
+    throw error
+  }
+
   const response = await fetch('/api/merchant/me', {
+    method: 'GET',
     headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
+      Authorization: `Bearer ${accessToken}`,
+      Accept: 'application/json'
+    },
+    cache: 'no-store'
   })
 
-  if (response.status === 401) throw new Error('UNAUTHENTICATED')
-  if (response.status === 403) throw new Error('NO_MERCHANT_PERMISSION')
-  if (!response.ok) throw new Error('MERCHANT_PROFILE_FAILED')
-  return response.json()
+  const data = await response.json().catch(() => null)
+  if (!response.ok) {
+    const error = new Error(data?.error || data?.message || `merchant_api_${response.status}`)
+    error.status = response.status
+    error.details = data
+    throw error
+  }
+
+  return data
 }
 
 export function AuthProvider({ children }) {
@@ -45,14 +63,13 @@ export function AuthProvider({ children }) {
     setMerchant(null)
   }
 
-  const verifyMerchant = async (state) => {
-    if (!state?.accessToken) throw new Error('UNAUTHENTICATED')
+  const verifyMerchant = async (accessToken, state = null) => {
     const [userInfo, merchantProfile] = await Promise.all([
-      authing.getUserInfo({ accessToken: state.accessToken }),
-      fetchMerchantProfile(state.accessToken)
+      authing.getUserInfo({ accessToken }),
+      verifyMerchantProfile(accessToken)
     ])
     if (userInfo?.statusCode >= 400) throw new Error('UNAUTHENTICATED')
-    setLoginState(state)
+    if (state) setLoginState(state)
     setUser(publicUser(userInfo, state))
     setMerchant(merchantProfile.merchant)
     return { userInfo, merchant: merchantProfile.merchant }
@@ -66,16 +83,23 @@ export function AuthProvider({ children }) {
         setLoading(false)
         return
       }
+      if (authing.isRedirectCallback()) {
+        setLoading(false)
+        return
+      }
 
       try {
-        const state = await authing.getLoginState()
+        const state = await authing.getLoginState({ ignoreCache: false })
         if (!mounted) return
-        if (!state) {
+        const accessToken = getAccessToken(state)
+        if (!state || !accessToken) {
           clearAuthData()
+          if (state && !accessToken) setAuthError('missing_access_token')
           setLoading(false)
           return
         }
-        await verifyMerchant(state)
+        setLoginState(state)
+        await verifyMerchant(accessToken, state)
       } catch (error) {
         if (mounted) {
           clearAuthData()
@@ -99,7 +123,14 @@ export function AuthProvider({ children }) {
     const state = authing.isRedirectCallback()
       ? await authing.handleRedirectCallback()
       : await authing.getLoginState({ ignoreCache: true })
-    return verifyMerchant(state)
+    const accessToken = getAccessToken(state)
+    if (!accessToken) {
+      const error = new Error('missing_access_token')
+      error.status = 401
+      throw error
+    }
+    setLoginState(state)
+    return verifyMerchant(accessToken, state)
   }
 
   const signOut = async (options = {}) => {
@@ -114,10 +145,10 @@ export function AuthProvider({ children }) {
     user,
     merchant,
     session: loginState,
-    token: loginState?.accessToken,
+    token: getAccessToken(loginState),
     loading,
     authError,
-    isAuthenticated: Boolean(loginState?.accessToken && user && merchant),
+    isAuthenticated: Boolean(getAccessToken(loginState) && user && merchant),
     configError: authingConfigError,
     signInWithHostedLogin,
     handleRedirectCallback,

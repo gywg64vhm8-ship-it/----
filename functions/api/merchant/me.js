@@ -1,80 +1,64 @@
-const textEncoder = new TextEncoder()
+import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
+  return Response.json(data, {
     status,
     headers: {
-      'content-type': 'application/json; charset=utf-8',
       'cache-control': 'no-store'
     }
   })
 }
 
-function decodeBase64Url(value) {
-  const normalized = value.replace(/-/g, '+').replace(/_/g, '/')
-  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=')
-  const binary = atob(padded)
-  return Uint8Array.from(binary, (char) => char.charCodeAt(0))
+function serverConfig(context) {
+  return {
+    issuer: context.env.AUTHING_ISSUER,
+    audience: context.env.AUTHING_AUDIENCE,
+    jwksUrl: context.env.AUTHING_JWKS_URL
+  }
 }
 
-function decodeJsonPart(value) {
-  return JSON.parse(new TextDecoder().decode(decodeBase64Url(value)))
-}
-
-async function verifyJwt(token, env) {
-  const [encodedHeader, encodedPayload, encodedSignature] = token.split('.')
-  if (!encodedHeader || !encodedPayload || !encodedSignature) {
-    throw new Error('INVALID_TOKEN')
+async function verifyAuthingToken(token, context) {
+  const { issuer, audience, jwksUrl } = serverConfig(context)
+  if (!issuer || !audience || !jwksUrl) {
+    const error = new Error('authing_server_config_missing')
+    error.status = 500
+    throw error
   }
 
-  const header = decodeJsonPart(encodedHeader)
-  const payload = decodeJsonPart(encodedPayload)
-  if (header.alg !== 'RS256' || !header.kid) throw new Error('UNSUPPORTED_TOKEN')
-
-  const authingHost = (env.AUTHING_APP_HOST || '').replace(/\/$/, '')
-  const appId = env.AUTHING_APP_ID
-  if (!authingHost || !appId) throw new Error('AUTHING_ENV_MISSING')
-
-  const issuer = `${authingHost}/oidc`
-  const now = Math.floor(Date.now() / 1000)
-  if (payload.iss !== issuer) throw new Error('INVALID_ISSUER')
-  if (payload.aud !== appId && !(Array.isArray(payload.aud) && payload.aud.includes(appId))) throw new Error('INVALID_AUDIENCE')
-  if (payload.exp && payload.exp < now) throw new Error('TOKEN_EXPIRED')
-
-  const jwksResponse = await fetch(`${authingHost}/oidc/.well-known/jwks.json`, {
-    headers: { accept: 'application/json' }
-  })
-  if (!jwksResponse.ok) throw new Error('JWKS_FAILED')
-
-  const jwks = await jwksResponse.json()
-  const jwk = jwks.keys?.find((key) => key.kid === header.kid)
-  if (!jwk) throw new Error('JWK_NOT_FOUND')
-
-  const cryptoKey = await crypto.subtle.importKey(
-    'jwk',
-    jwk,
-    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-    false,
-    ['verify']
-  )
-
-  const verified = await crypto.subtle.verify(
-    'RSASSA-PKCS1-v1_5',
-    cryptoKey,
-    decodeBase64Url(encodedSignature),
-    textEncoder.encode(`${encodedHeader}.${encodedPayload}`)
-  )
-  if (!verified) throw new Error('TOKEN_VERIFY_FAILED')
-  return payload
+  const jwks = createRemoteJWKSet(new URL(jwksUrl))
+  try {
+    const { payload } = await jwtVerify(token, jwks, {
+      issuer,
+      audience
+    })
+    return payload
+  } catch (error) {
+    const isRemoteJwksError = error?.code?.includes('JWKS') || error?.message?.includes('JWKS')
+    if (isRemoteJwksError) error.status = 500
+    else error.status = 401
+    throw error
+  }
 }
 
-async function queryMerchantUser(env, authingUserId) {
-  if (!env.DB) throw new Error('DB_BINDING_MISSING')
-  return env.DB
+async function queryMerchant(context, authingUserId) {
+  if (!context.env.DB) {
+    const error = new Error('db_binding_missing')
+    error.status = 500
+    throw error
+  }
+
+  return context.env.DB
     .prepare(`
-      SELECT authing_user_id, phone, provider, role, merchant_id, merchant_name, status, created_at
+      SELECT
+        authing_user_id,
+        merchant_id,
+        phone,
+        provider,
+        role,
+        status
       FROM merchant_users
       WHERE authing_user_id = ?
+        AND status = 'active'
       LIMIT 1
     `)
     .bind(authingUserId)
@@ -85,36 +69,90 @@ export async function onRequestOptions() {
   return new Response(null, { status: 204 })
 }
 
-export async function onRequestGet({ request, env }) {
-  const authorization = request.headers.get('Authorization') || ''
-  const token = authorization.startsWith('Bearer ') ? authorization.slice(7).trim() : ''
-  if (!token) return json({ error: 'UNAUTHENTICATED' }, 401)
+export async function onRequestGet(context) {
+  const authorization = context.request.headers.get('Authorization') || ''
+
+  if (!authorization.startsWith('Bearer ')) {
+    console.log('merchant auth debug', {
+      hasAuthorization: Boolean(authorization),
+      tokenLength: 0,
+      issuer: context.env.AUTHING_ISSUER,
+      audience: context.env.AUTHING_AUDIENCE,
+      subject: null
+    })
+    return json({
+      error: 'missing_authorization_header',
+      message: '请求未携带登录凭证'
+    }, 401)
+  }
+
+  const token = authorization.slice(7).trim()
+  if (!token) {
+    console.log('merchant auth debug', {
+      hasAuthorization: true,
+      tokenLength: 0,
+      issuer: context.env.AUTHING_ISSUER,
+      audience: context.env.AUTHING_AUDIENCE,
+      subject: null
+    })
+    return json({
+      error: 'missing_access_token',
+      message: '登录凭证为空'
+    }, 401)
+  }
 
   try {
-    const payload = await verifyJwt(token, env)
+    const payload = await verifyAuthingToken(token, context)
     const authingUserId = payload.sub
-    if (!authingUserId) return json({ error: 'UNAUTHENTICATED' }, 401)
 
-    const merchantUser = await queryMerchantUser(env, authingUserId)
-    if (!merchantUser) return json({ error: 'FORBIDDEN' }, 403)
-    if (merchantUser.status !== 'active') return json({ error: 'FORBIDDEN' }, 403)
-    if (!['merchant', 'admin'].includes(merchantUser.role)) return json({ error: 'FORBIDDEN' }, 403)
+    console.log('merchant auth debug', {
+      hasAuthorization: Boolean(authorization),
+      tokenLength: token.length,
+      issuer: context.env.AUTHING_ISSUER,
+      audience: context.env.AUTHING_AUDIENCE,
+      subject: authingUserId || null
+    })
+
+    if (!authingUserId) {
+      return json({
+        error: 'missing_token_subject',
+        message: '登录凭证缺少用户标识'
+      }, 401)
+    }
+
+    const merchant = await queryMerchant(context, authingUserId)
+    if (!merchant || !['merchant', 'admin'].includes(merchant.role)) {
+      return json({
+        error: 'merchant_not_authorized',
+        message: '当前账号未开通商家权限'
+      }, 403)
+    }
 
     return json({
-      merchant: {
-        authingUserId: merchantUser.authing_user_id,
-        phone: merchantUser.phone,
-        provider: merchantUser.provider,
-        role: merchantUser.role,
-        merchantId: merchantUser.merchant_id,
-        merchant_name: merchantUser.merchant_name,
-        status: merchantUser.status,
-        createdAt: merchantUser.created_at
-      }
+      authenticated: true,
+      merchant
     })
   } catch (error) {
-    const message = error?.message || 'TOKEN_ERROR'
-    if (message.includes('FORBIDDEN')) return json({ error: 'FORBIDDEN' }, 403)
-    return json({ error: 'UNAUTHENTICATED' }, 401)
+    const status = error?.status || 500
+    if (status === 401) {
+      return json({
+        error: 'invalid_access_token',
+        message: '登录状态无效，请重新登录'
+      }, 401)
+    }
+    if (status === 403) {
+      return json({
+        error: 'merchant_not_authorized',
+        message: '当前账号未开通商家权限'
+      }, 403)
+    }
+    console.error('merchant auth service error', {
+      message: error?.message,
+      code: error?.code || null
+    })
+    return json({
+      error: 'merchant_auth_service_error',
+      message: '商家权限验证服务异常，请稍后再试'
+    }, 500)
   }
 }

@@ -6,8 +6,18 @@ import { AuthLoadingScreen } from '../components/auth/ProtectedRoute'
 function normalizeCallbackError(error) {
   const message = error?.message || ''
   if (message.includes('access_denied') || message.includes('cancel')) return '支付宝授权未完成'
-  if (message === 'NO_MERCHANT_PERMISSION') return '当前账号未开通商家权限'
+  if (message === 'missing_access_token') return '未获取到登录凭证，请重新登录'
+  if (error?.status === 401) return '登录状态无效，请重新登录'
+  if (error?.status === 403 || message === 'NO_MERCHANT_PERMISSION') return '当前账号未开通商家权限'
+  if (error?.status >= 500) return '商家权限验证服务异常，请稍后再试'
   return '登录失败，请稍后重试'
+}
+
+function loginErrorCode(message) {
+  if (message === '支付宝授权未完成') return 'alipay_cancel'
+  if (message === '当前账号未开通商家权限') return 'no_permission'
+  if (message === '商家权限验证服务异常，请稍后再试') return 'server_error'
+  return 'invalid_session'
 }
 
 export function AuthCallback() {
@@ -39,8 +49,7 @@ export function AuthCallback() {
         if (mounted) setError(nextError)
         await signOut({ localOnly: true })
         window.setTimeout(() => {
-          const code = nextError === '支付宝授权未完成' ? 'alipay_cancel' : 'no_permission'
-          navigate(`/merchant/login?error=${code}`, { replace: true })
+          navigate(`/merchant/login?error=${loginErrorCode(nextError)}`, { replace: true })
         }, 900)
       }
     }

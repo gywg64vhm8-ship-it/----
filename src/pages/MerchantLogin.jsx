@@ -42,6 +42,8 @@ export function MerchantLogin() {
     const nextError = params.get('error')
     if (nextError === 'alipay_cancel') setError('支付宝授权未完成')
     if (nextError === 'no_permission') setError('当前账号未开通商家权限')
+    if (nextError === 'invalid_session') setError('登录状态无效，请重新登录')
+    if (nextError === 'server_error') setError('商家权限验证服务异常，请稍后再试')
   }, [location.search])
 
   if (loading) return <AuthLoadingScreen text="正在检查登录状态..." />

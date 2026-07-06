@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
+import { getAccessToken, useAuth } from '../../context/AuthContext'
 
 export function AuthLoadingScreen({ text = '正在验证商家身份...' }) {
   return (
@@ -14,7 +14,7 @@ export function AuthLoadingScreen({ text = '正在验证商家身份...' }) {
 export function ProtectedRoute({ children }) {
   const { isAuthenticated, loading, session, verifyMerchant, signOut } = useAuth()
   const [checking, setChecking] = useState(true)
-  const [denied, setDenied] = useState(false)
+  const [authError, setAuthError] = useState('')
   const location = useLocation()
 
   useEffect(() => {
@@ -22,16 +22,19 @@ export function ProtectedRoute({ children }) {
 
     async function checkMerchant() {
       if (loading) return
-      if (!session?.accessToken) {
+      const accessToken = getAccessToken(session)
+      if (!accessToken) {
         setChecking(false)
         return
       }
       try {
-        await verifyMerchant(session)
+        await verifyMerchant(accessToken, session)
         if (mounted) setChecking(false)
-      } catch {
+      } catch (error) {
         if (mounted) {
-          setDenied(true)
+          if (error?.status === 403) setAuthError('no_permission')
+          else if (error?.status >= 500) setAuthError('server_error')
+          else setAuthError('invalid_session')
           setChecking(false)
         }
       }
@@ -41,16 +44,16 @@ export function ProtectedRoute({ children }) {
     return () => {
       mounted = false
     }
-  }, [loading, session?.accessToken])
+  }, [loading, session])
 
   useEffect(() => {
-    if (denied) signOut({ localOnly: true })
-  }, [denied])
+    if (authError) signOut({ localOnly: true })
+  }, [authError])
 
   if (loading || checking) return <AuthLoadingScreen />
 
-  if (denied) {
-    return <Navigate to="/merchant/login?error=no_permission" replace />
+  if (authError) {
+    return <Navigate to={`/merchant/login?error=${authError}`} replace />
   }
 
   if (!isAuthenticated) {
