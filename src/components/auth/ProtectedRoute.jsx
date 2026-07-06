@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
+import { authing } from '../../lib/authing'
 import { getAccessToken, useAuth } from '../../context/AuthContext'
 
 export function AuthLoadingScreen({ text = '正在验证商家身份...' }) {
@@ -11,52 +12,68 @@ export function AuthLoadingScreen({ text = '正在验证商家身份...' }) {
   )
 }
 
+function AuthServiceError() {
+  return (
+    <main className="authCallbackPage">
+      <div className="authCallbackCard">
+        <h1>商家身份验证服务异常，请稍后再试</h1>
+        <p>请稍后刷新页面，或返回商家登录页重新进入。</p>
+      </div>
+    </main>
+  )
+}
+
 export function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading, session, verifyMerchant, signOut } = useAuth()
-  const [checking, setChecking] = useState(true)
-  const [authError, setAuthError] = useState('')
+  const { verifyMerchant } = useAuth()
+  const checkedRef = useRef(false)
+  const [status, setStatus] = useState('checking')
   const location = useLocation()
 
   useEffect(() => {
-    let mounted = true
+    let cancelled = false
+    if (checkedRef.current) return undefined
+    checkedRef.current = true
 
-    async function checkMerchant() {
-      if (loading) return
-      const accessToken = getAccessToken(session)
-      if (!accessToken) {
-        setChecking(false)
-        return
-      }
+    async function checkAccess() {
       try {
-        await verifyMerchant(accessToken, session)
-        if (mounted) setChecking(false)
-      } catch (error) {
-        if (mounted) {
-          if (error?.status === 403) setAuthError('no_permission')
-          else if (error?.status >= 500) setAuthError('server_error')
-          else setAuthError('invalid_session')
-          setChecking(false)
+        const loginState = await authing.getLoginState({ ignoreCache: false })
+        if (cancelled) return
+
+        const accessToken = getAccessToken(loginState)
+        if (!accessToken) {
+          setStatus('missing_session')
+          return
         }
+
+        await verifyMerchant(accessToken, loginState)
+        if (!cancelled) setStatus('authorized')
+      } catch (error) {
+        if (cancelled) return
+        if (error?.status === 403) setStatus('merchant_not_authorized')
+        else if (error?.status >= 500) setStatus('service_error')
+        else setStatus('invalid_session')
       }
     }
 
-    checkMerchant()
+    checkAccess()
     return () => {
-      mounted = false
+      cancelled = true
     }
-  }, [loading, session])
+  }, [verifyMerchant])
 
-  useEffect(() => {
-    if (authError) signOut({ localOnly: true })
-  }, [authError])
+  if (status === 'checking') return <AuthLoadingScreen />
 
-  if (loading || checking) return <AuthLoadingScreen />
+  if (status === 'service_error') return <AuthServiceError />
 
-  if (authError) {
-    return <Navigate to={`/merchant/login?error=${authError}`} replace />
+  if (status === 'merchant_not_authorized') {
+    return <Navigate to="/merchant/login?error=merchant_not_authorized" replace />
   }
 
-  if (!isAuthenticated) {
+  if (status === 'invalid_session') {
+    return <Navigate to="/merchant/login?error=invalid_session" replace />
+  }
+
+  if (status === 'missing_session') {
     const redirect = `${location.pathname}${location.search}${location.hash}`
     return <Navigate to={`/merchant/login?redirect=${encodeURIComponent(redirect)}`} replace />
   }

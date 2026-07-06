@@ -100,7 +100,10 @@ export function AuthProvider({ children }) {
           return
         }
         setLoginState(state)
-        await verifyMerchant(accessToken, state)
+        const userInfo = await authing.getUserInfo({ accessToken })
+        if (mounted && userInfo?.statusCode < 400) {
+          setUser(publicUser(userInfo, state))
+        }
       } catch (error) {
         if (mounted) {
           clearAuthData()
@@ -134,7 +137,7 @@ export function AuthProvider({ children }) {
     token: getAccessToken(loginState),
     loading,
     authError,
-    isAuthenticated: Boolean(getAccessToken(loginState) && user && merchant),
+    isAuthenticated: Boolean(getAccessToken(loginState)),
     configError: authingConfigError,
     signInWithHostedLogin,
     signOut,

@@ -51,6 +51,15 @@ export function AuthCallback() {
 
     async function run() {
       try {
+        const now = Date.now()
+        const previous = Number(sessionStorage.getItem('auth_callback_time') || 0)
+        if (now - previous < 5000) {
+          sessionStorage.removeItem('auth_callback_time')
+          window.location.replace('/merchant/login?error=redirect_loop')
+          return
+        }
+        sessionStorage.setItem('auth_callback_time', String(now))
+
         const params = new URLSearchParams(window.location.search)
         const code = params.get('code')
         const state = params.get('state')
@@ -70,6 +79,7 @@ export function AuthCallback() {
         await verifyMerchantAccessToken(accessToken)
         if (cancelled) return
 
+        sessionStorage.removeItem('auth_callback_time')
         window.history.replaceState({}, document.title, '/auth/callback')
         window.location.replace('/merchant/dashboard')
       } catch (callbackError) {
@@ -81,11 +91,9 @@ export function AuthCallback() {
         })
 
         if (!cancelled) setError(callbackMessage(callbackError))
-        window.setTimeout(() => {
-          if (!cancelled) {
-            window.location.replace(`/merchant/login?error=${encodeURIComponent(loginErrorCode(callbackError))}`)
-          }
-        }, 900)
+        if (!cancelled) {
+          window.location.replace(`/merchant/login?error=${encodeURIComponent(loginErrorCode(callbackError))}`)
+        }
       }
     }
 
