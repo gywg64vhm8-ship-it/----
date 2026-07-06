@@ -24,10 +24,23 @@ function AuthServiceError() {
 }
 
 export function ProtectedRoute({ children }) {
-  const { verifyMerchant } = useAuth()
+  const { loading, merchant, verifyMerchant } = useAuth()
+  const verifyMerchantRef = useRef(verifyMerchant)
   const checkedRef = useRef(false)
   const [status, setStatus] = useState('checking')
   const location = useLocation()
+
+  useEffect(() => {
+    verifyMerchantRef.current = verifyMerchant
+  }, [verifyMerchant])
+
+  useEffect(() => {
+    console.log('ProtectedRoute state', {
+      status,
+      loading,
+      hasMerchant: Boolean(merchant)
+    })
+  }, [status, loading, merchant])
 
   useEffect(() => {
     let cancelled = false
@@ -45,8 +58,16 @@ export function ProtectedRoute({ children }) {
           return
         }
 
-        await verifyMerchant(accessToken, loginState)
-        if (!cancelled) setStatus('authorized')
+        const data = await verifyMerchantRef.current(accessToken, loginState)
+        if (cancelled) return
+
+        console.log('Merchant API success', {
+          status: 200,
+          merchantFound: Boolean(data?.merchant),
+          role: data?.merchant?.role || null
+        })
+        setStatus('authorized')
+        return
       } catch (error) {
         if (cancelled) return
         if (error?.status === 403) setStatus('merchant_not_authorized')
@@ -59,7 +80,7 @@ export function ProtectedRoute({ children }) {
     return () => {
       cancelled = true
     }
-  }, [verifyMerchant])
+  }, [])
 
   if (status === 'checking') return <AuthLoadingScreen />
 

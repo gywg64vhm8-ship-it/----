@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
   authing,
   authingConfigError,
@@ -57,23 +57,19 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [authError, setAuthError] = useState('')
 
-  const clearAuthData = () => {
+  const clearAuthData = useCallback(() => {
     setLoginState(null)
     setUser(null)
     setMerchant(null)
-  }
+  }, [])
 
-  const verifyMerchant = async (accessToken, state = null) => {
-    const [userInfo, merchantProfile] = await Promise.all([
-      authing.getUserInfo({ accessToken }),
-      verifyMerchantAccessToken(accessToken)
-    ])
-    if (userInfo?.statusCode >= 400) throw new Error('UNAUTHENTICATED')
+  const verifyMerchant = useCallback(async (accessToken, state = null) => {
+    const merchantProfile = await verifyMerchantAccessToken(accessToken)
     if (state) setLoginState(state)
-    setUser(publicUser(userInfo, state))
+    setUser(publicUser(null, state))
     setMerchant(merchantProfile.merchant)
-    return { userInfo, merchant: merchantProfile.merchant }
-  }
+    return { merchant: merchantProfile.merchant }
+  }, [])
 
   useEffect(() => {
     let mounted = true
@@ -100,10 +96,7 @@ export function AuthProvider({ children }) {
           return
         }
         setLoginState(state)
-        const userInfo = await authing.getUserInfo({ accessToken })
-        if (mounted && userInfo?.statusCode < 400) {
-          setUser(publicUser(userInfo, state))
-        }
+        setUser(publicUser(null, state))
       } catch (error) {
         if (mounted) {
           clearAuthData()
@@ -120,15 +113,15 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const signInWithHostedLogin = () => loginWithAuthingRedirect()
+  const signInWithHostedLogin = useCallback(() => loginWithAuthingRedirect(), [])
 
-  const signOut = async (options = {}) => {
+  const signOut = useCallback(async (options = {}) => {
     clearAuthData()
     if (options.localOnly) return
     if (authing) {
       await authing.logoutWithRedirect({ redirectUri: 'https://minsu-4h7.pages.dev/merchant/login' })
     }
-  }
+  }, [clearAuthData])
 
   const value = useMemo(() => ({
     user,
@@ -142,7 +135,7 @@ export function AuthProvider({ children }) {
     signInWithHostedLogin,
     signOut,
     verifyMerchant
-  }), [user, merchant, loginState, loading, authError])
+  }), [user, merchant, loginState, loading, authError, signInWithHostedLogin, signOut, verifyMerchant])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
