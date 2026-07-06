@@ -1,29 +1,59 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { authing } from '../lib/authing'
+import { getAccessToken } from '../context/AuthContext'
 import { AuthLoadingScreen } from '../components/auth/ProtectedRoute'
 
-function normalizeCallbackError(error) {
-  const message = error?.message || ''
-  if (message.includes('access_denied') || message.includes('cancel')) return '支付宝授权未完成'
-  if (message === 'missing_access_token') return '未获取到登录凭证，请重新登录'
-  if (error?.status === 401) return '登录状态无效，请重新登录'
-  if (error?.status === 403 || message === 'NO_MERCHANT_PERMISSION') return '当前账号未开通商家权限'
-  if (error?.status >= 500) return '商家权限验证服务异常，请稍后再试'
-  return '登录失败，请稍后重试'
+let callbackPromise = null
+
+function processCallbackOnce() {
+  if (!callbackPromise) {
+    callbackPromise = authing.handleRedirectCallback()
+  }
+  return callbackPromise
 }
 
-function loginErrorCode(message) {
-  if (message === '支付宝授权未完成') return 'alipay_cancel'
-  if (message === '当前账号未开通商家权限') return 'no_permission'
-  if (message === '商家权限验证服务异常，请稍后再试') return 'server_error'
-  return 'invalid_session'
+async function verifyMerchant(accessToken) {
+  const response = await fetch('/api/merchant/me', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: 'application/json'
+    },
+    cache: 'no-store'
+  })
+
+  const data = await response.json().catch(() => null)
+  if (!response.ok) {
+    throw Object.assign(
+      new Error(data?.error || `merchant_api_${response.status}`),
+      { status: response.status, details: data }
+    )
+  }
+
+  return data
+}
+
+function loginErrorCode(error) {
+  if (error?.message === 'missing_access_token') return 'missing_token'
+  if (error?.message === 'invalid_callback_parameters') return 'invalid_callback'
+  if (error?.status === 401) return 'merchant_api_401'
+  if (error?.status === 403) return 'merchant_api_403'
+  if (error?.status >= 500) return 'merchant_api_500'
+  return 'callback_failed'
+}
+
+function callbackMessage(error) {
+  const code = loginErrorCode(error)
+  if (code === 'invalid_callback') return '登录回调参数不完整，请重新登录'
+  if (code === 'missing_token') return '未获取到登录凭证，请重新登录'
+  if (code === 'merchant_api_401') return '登录凭证无效，请重新登录'
+  if (code === 'merchant_api_403') return '当前账号未开通商家权限'
+  if (code === 'merchant_api_500') return '商家权限验证服务异常，请稍后再试'
+  return '登录回调处理失败，请重新登录'
 }
 
 export function AuthCallback() {
-  const { handleRedirectCallback, signOut } = useAuth()
   const [error, setError] = useState('')
-  const navigate = useNavigate()
 
   useEffect(() => {
     document.title = '正在验证商家身份 | 云栖小院'
@@ -38,25 +68,51 @@ export function AuthCallback() {
   }, [])
 
   useEffect(() => {
-    let mounted = true
+    let cancelled = false
 
-    async function verifyCallback() {
+    async function run() {
       try {
-        await handleRedirectCallback()
-        if (mounted) navigate('/merchant/dashboard', { replace: true })
+        const params = new URLSearchParams(window.location.search)
+        const code = params.get('code')
+        const state = params.get('state')
+
+        if (!code || !state || !authing?.isRedirectCallback()) {
+          throw new Error('invalid_callback_parameters')
+        }
+
+        const loginState = await processCallbackOnce()
+        if (cancelled) return
+
+        const accessToken = getAccessToken(loginState)
+        if (!accessToken) {
+          throw new Error('missing_access_token')
+        }
+
+        await verifyMerchant(accessToken)
+        if (cancelled) return
+
+        window.history.replaceState({}, document.title, '/auth/callback')
+        window.location.replace('/merchant/dashboard')
       } catch (callbackError) {
-        const nextError = normalizeCallbackError(callbackError)
-        if (mounted) setError(nextError)
-        await signOut({ localOnly: true })
+        console.error('Authing callback failed', {
+          name: callbackError?.name,
+          message: callbackError?.message,
+          code: callbackError?.code,
+          status: callbackError?.status
+        })
+
+        if (!cancelled) setError(callbackMessage(callbackError))
         window.setTimeout(() => {
-          navigate(`/merchant/login?error=${loginErrorCode(nextError)}`, { replace: true })
+          if (!cancelled) {
+            window.location.replace(`/merchant/login?error=${encodeURIComponent(loginErrorCode(callbackError))}`)
+          }
         }, 900)
       }
     }
 
-    verifyCallback()
+    run()
     return () => {
-      mounted = false
+      cancelled = true
     }
   }, [])
 

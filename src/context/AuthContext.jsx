@@ -79,11 +79,12 @@ export function AuthProvider({ children }) {
     let mounted = true
 
     async function restoreSession() {
-      if (!authing) {
+      const isCallbackPath = window.location.pathname === '/auth/callback'
+      if (isCallbackPath) {
         setLoading(false)
         return
       }
-      if (authing.isRedirectCallback()) {
+      if (!authing) {
         setLoading(false)
         return
       }
@@ -118,21 +119,6 @@ export function AuthProvider({ children }) {
 
   const signInWithHostedLogin = () => loginWithAuthingRedirect()
 
-  const handleRedirectCallback = async () => {
-    if (!authing) throw new Error(authingConfigError)
-    const state = authing.isRedirectCallback()
-      ? await authing.handleRedirectCallback()
-      : await authing.getLoginState({ ignoreCache: true })
-    const accessToken = getAccessToken(state)
-    if (!accessToken) {
-      const error = new Error('missing_access_token')
-      error.status = 401
-      throw error
-    }
-    setLoginState(state)
-    return verifyMerchant(accessToken, state)
-  }
-
   const signOut = async (options = {}) => {
     clearAuthData()
     if (options.localOnly) return
@@ -151,7 +137,6 @@ export function AuthProvider({ children }) {
     isAuthenticated: Boolean(getAccessToken(loginState) && user && merchant),
     configError: authingConfigError,
     signInWithHostedLogin,
-    handleRedirectCallback,
     signOut,
     verifyMerchant
   }), [user, merchant, loginState, loading, authError])

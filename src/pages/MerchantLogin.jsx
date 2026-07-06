@@ -44,6 +44,12 @@ export function MerchantLogin() {
     if (nextError === 'no_permission') setError('当前账号未开通商家权限')
     if (nextError === 'invalid_session') setError('登录状态无效，请重新登录')
     if (nextError === 'server_error') setError('商家权限验证服务异常，请稍后再试')
+    if (nextError === 'invalid_callback') setError('登录回调参数不完整，请重新登录')
+    if (nextError === 'missing_token') setError('未获取到登录凭证，请重新登录')
+    if (nextError === 'callback_failed') setError('登录回调处理失败，请重新登录')
+    if (nextError === 'merchant_api_401') setError('登录凭证无效，请重新登录')
+    if (nextError === 'merchant_api_403') setError('当前账号未开通商家权限')
+    if (nextError === 'merchant_api_500') setError('商家权限验证服务异常，请稍后再试')
   }, [location.search])
 
   if (loading) return <AuthLoadingScreen text="正在检查登录状态..." />

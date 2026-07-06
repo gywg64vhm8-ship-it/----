@@ -22,5 +22,8 @@ export const authing = authingConfigError
 
 export function loginWithAuthingRedirect() {
   if (!authing) throw new Error(authingConfigError)
-  return authing.loginWithRedirect()
+  return authing.loginWithRedirect({
+    redirectUri,
+    originalUri: '/merchant/dashboard'
+  })
 }
