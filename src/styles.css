@@ -2435,7 +2435,7 @@ button {
 .merchantLoginPage {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(420px, 34%) 1fr;
+  grid-template-columns: clamp(440px, 33vw, 580px) minmax(0, 1fr);
   overflow-x: hidden;
   background: #fbf8f3;
   color: var(--ink);
@@ -2446,7 +2446,7 @@ button {
   display: grid;
   align-content: space-between;
   min-height: 100vh;
-  padding: clamp(42px, 5.2vw, 72px) clamp(38px, 4.4vw, 86px);
+  padding: clamp(55px, 4.8vw, 70px) clamp(58px, 4.6vw, 80px);
   background: #fbf8f3;
   isolation: isolate;
   overflow: hidden;
@@ -2457,7 +2457,7 @@ button {
   content: "";
   position: absolute;
   z-index: -1;
-  border: 1px solid rgba(126, 97, 78, 0.15);
+  border: 1px solid rgba(120, 78, 52, 0.12);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -2495,6 +2495,7 @@ button {
 
 .merchantIntroCopy {
   align-self: center;
+  max-width: 440px;
   transform: translateY(-5vh);
 }
 
@@ -2502,25 +2503,31 @@ button {
   margin: 0;
   font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
   color: #6f321d;
-  font-size: clamp(34px, 3.1vw, 48px);
-  line-height: 1.42;
-  font-weight: 760;
+  font-size: clamp(38px, 2.7vw, 50px);
+  line-height: 1.45;
+  font-weight: 600;
   letter-spacing: 0;
+}
+
+.merchantIntroCopy h1 span {
+  display: block;
+  white-space: nowrap;
 }
 
 .merchantIntroCopy > span {
   display: block;
-  width: 78px;
+  width: 52px;
   height: 2px;
-  margin: 34px 0 30px;
+  margin: 28px 0 28px;
   background: rgba(149, 105, 74, 0.58);
 }
 
 .merchantIntroCopy p {
   margin: 0;
-  color: #92877f;
+  max-width: 430px;
+  color: #8c8078;
   font-size: 17px;
-  line-height: 2.1;
+  line-height: 1.9;
 }
 
 .merchantIntroFoot {
@@ -2531,12 +2538,12 @@ button {
 
 .merchantLoginVisual {
   min-height: 100vh;
-  display: grid;
+  display: flex;
   align-items: center;
-  justify-items: start;
-  padding: clamp(34px, 4.5vw, 76px);
+  justify-content: center;
+  padding: 48px 5vw;
   background:
-    linear-gradient(rgba(85, 50, 30, 0.08), rgba(85, 50, 30, 0.08)),
+    linear-gradient(rgba(75, 43, 25, 0.06), rgba(75, 43, 25, 0.06)),
     url("/images/hero-desktop.webp") center / cover no-repeat,
     #d8bea1;
 }
@@ -2550,21 +2557,22 @@ button {
 }
 
 .merchantLoginCard {
-  width: min(560px, calc(100% - 64px));
-  max-width: 90%;
-  padding: clamp(46px, 3.9vw, 56px);
+  width: min(560px, calc(100% - 80px));
+  max-width: min(580px, 70%);
+  margin-left: -20px;
+  padding: 48px 50px 42px;
   border: 1px solid rgba(235, 224, 212, 0.92);
   border-radius: 20px;
   background: rgba(255, 253, 249, 0.98);
-  box-shadow: 0 20px 60px rgba(73, 42, 23, 0.18);
+  box-shadow: 0 22px 65px rgba(69, 38, 20, 0.18);
 }
 
 .merchantBrand {
   display: inline-flex;
-  margin-bottom: 26px;
+  margin-bottom: 20px;
   font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
   color: #6f321d;
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 850;
 }
 
@@ -2573,16 +2581,16 @@ button {
   margin: 0;
   font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
   color: #6f321d;
-  font-size: clamp(48px, 3.6vw, 54px);
+  font-size: clamp(42px, 3vw, 50px);
   line-height: 1.08;
   letter-spacing: 0;
 }
 
 .merchantLoginTitle p,
 .merchantDashboardHero p {
-  margin: 18px 0 0;
+  margin: 16px 0 0;
   color: #7d7068;
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1.7;
 }
 
@@ -2608,7 +2616,7 @@ button {
 }
 
 .socialLoginButton {
-  min-height: 58px;
+  min-height: 54px;
   border: 1px solid rgba(190, 166, 148, 0.58);
   border-radius: 9px;
   background: rgba(255, 253, 249, 0.9);
@@ -2627,7 +2635,7 @@ button {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  margin-top: 30px;
+  margin-top: 26px;
   color: #7d7068;
   font-size: 15px;
   line-height: 1.55;
@@ -2649,7 +2657,7 @@ button {
 
 .merchantLoginButton {
   width: 100%;
-  min-height: 60px;
+  min-height: 58px;
   margin-top: 26px;
   border: 0;
   border-radius: 9px;
@@ -2695,7 +2703,7 @@ button {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
-  margin-top: 24px;
+  margin-top: 26px;
 }
 
 .socialLoginBlock p {
@@ -2922,11 +2930,11 @@ button {
   .mobile-login-hero {
     position: relative;
     display: block;
-    min-height: clamp(590px, 74svh, 720px);
-    padding: calc(26px + env(safe-area-inset-top)) 24px 108px;
+    min-height: clamp(650px, 72svh, 720px);
+    padding: calc(26px + env(safe-area-inset-top)) 24px 92px;
     overflow: hidden;
     background:
-      linear-gradient(90deg, rgba(250, 242, 232, 0.9) 0%, rgba(250, 242, 232, 0.62) 54%, rgba(250, 242, 232, 0.2) 100%),
+      linear-gradient(90deg, rgba(250, 241, 231, 0.84) 0%, rgba(250, 241, 231, 0.55) 55%, rgba(250, 241, 231, 0.16) 100%),
       url("/images/hero-mobile.webp") center top / cover no-repeat,
       #d8bea1;
   }
@@ -2947,7 +2955,7 @@ button {
     min-height: 44px;
     color: #6f321d;
     font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
-    font-size: 25px;
+    font-size: clamp(28px, 7vw, 32px);
     font-weight: 850;
   }
 
@@ -2967,33 +2975,39 @@ button {
   .mobile-brand-copy {
     position: relative;
     z-index: 2;
-    width: min(85%, 430px);
-    margin-top: clamp(86px, 14svh, 138px);
+    width: min(90%, 440px);
+    margin-top: clamp(80px, 12svh, 122px);
   }
 
   .mobile-brand-copy h1 {
     margin: 0;
     color: #6f321d;
     font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
-    font-size: clamp(34px, 9.3vw, 40px);
+    font-size: clamp(31px, 8.5vw, 40px);
     font-weight: 720;
-    line-height: 1.42;
+    line-height: 1.45;
     letter-spacing: 0;
+  }
+
+  .mobile-brand-copy h1 span {
+    display: block;
+    white-space: nowrap;
   }
 
   .mobile-brand-copy > span {
     display: block;
     width: 46px;
     height: 2px;
-    margin: 26px 0 22px;
+    margin: 22px 0 18px;
     background: rgba(149, 105, 74, 0.52);
   }
 
   .mobile-brand-copy p {
     margin: 0;
+    max-width: 90%;
     color: #82756c;
-    font-size: clamp(15px, 3.7vw, 17px);
-    line-height: 1.85;
+    font-size: clamp(15px, 3.6vw, 16px);
+    line-height: 1.8;
   }
 
   .mobile-login-menu-layer {
@@ -3042,16 +3056,16 @@ button {
     position: relative;
     z-index: 2;
     display: block;
-    margin-top: -46px;
-    padding: 0 18px calc(34px + env(safe-area-inset-bottom));
+    margin-top: -52px;
+    padding: 0 18px calc(30px + env(safe-area-inset-bottom));
   }
 
   .merchantLoginCard {
     width: 100%;
     max-width: 520px;
     margin: 0 auto;
-    padding: 42px 26px 32px;
-    border-radius: 26px;
+    padding: 38px 24px 30px;
+    border-radius: 24px;
     background: rgba(255, 253, 250, 0.98);
     box-shadow: 0 18px 48px rgba(80, 43, 25, 0.16);
   }
@@ -3062,22 +3076,24 @@ button {
 
   .merchantLoginTitle h1 {
     text-align: center;
-    font-size: clamp(36px, 10vw, 42px);
+    font-size: clamp(34px, 9vw, 42px);
     font-weight: 760;
     line-height: 1.2;
+    white-space: nowrap;
   }
 
   .merchantLoginTitle p {
     margin-top: 14px;
     color: #81766f;
     text-align: center;
-    font-size: clamp(16px, 4.2vw, 18px);
+    font-size: clamp(15px, 4vw, 17px);
+    white-space: nowrap;
   }
 
   .agreementCheck {
     justify-content: center;
-    margin-top: 28px;
-    font-size: clamp(15px, 4vw, 17px);
+    margin-top: 26px;
+    font-size: clamp(14px, 3.8vw, 16px);
     text-align: left;
   }
 
@@ -3088,18 +3104,18 @@ button {
   }
 
   .merchantLoginButton {
-    min-height: 62px;
-    margin-top: 28px;
+    min-height: 60px;
+    margin-top: 26px;
     border-radius: 11px;
-    font-size: 20px;
+    font-size: clamp(19px, 5vw, 21px);
     font-weight: 760;
     white-space: nowrap;
   }
 
   .socialLoginBlock {
     grid-template-columns: 1fr;
-    gap: 14px;
-    margin-top: 28px;
+    gap: 12px;
+    margin-top: 26px;
   }
 
   .socialLoginBlock p {
@@ -3120,18 +3136,18 @@ button {
   }
 
   .socialLoginButton {
-    min-height: 56px;
+    min-height: 55px;
     width: 100%;
     border-radius: 10px;
     color: #7b4a34;
-    font-size: clamp(15px, 4vw, 17px);
+    font-size: clamp(16px, 4.2vw, 18px);
     white-space: nowrap;
     cursor: default;
   }
 
   .merchantLoginLinks {
     justify-items: center;
-    margin-top: 28px;
+    margin-top: 26px;
     font-size: 17px;
   }
 
@@ -3144,7 +3160,7 @@ button {
 @media (max-width: 520px) {
   .merchantLoginCard {
     width: 100%;
-    padding: 28px;
+    padding: 36px 22px 28px;
   }
 
   .mobile-login-card-wrap {
@@ -3173,6 +3189,52 @@ button {
 
   .merchantDashboardTop button {
     width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .mobile-login-hero {
+    min-height: 650px;
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .mobile-login-brand {
+    font-size: 27px;
+  }
+
+  .mobile-brand-copy {
+    width: 94%;
+  }
+
+  .mobile-brand-copy h1 {
+    font-size: clamp(30px, 8.2vw, 32px);
+  }
+
+  .mobile-brand-copy p {
+    max-width: 96%;
+    font-size: 15px;
+  }
+
+  .merchantLoginTitle h1 {
+    font-size: 34px;
+  }
+
+  .merchantLoginTitle p {
+    font-size: 14px;
+  }
+
+  .agreementCheck {
+    gap: 9px;
+    font-size: 14px;
+  }
+
+  .merchantLoginButton {
+    font-size: 18px;
+  }
+
+  .socialLoginButton {
+    font-size: 15px;
   }
 }
 

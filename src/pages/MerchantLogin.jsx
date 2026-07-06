@@ -93,7 +93,10 @@ export function MerchantLogin() {
         </Link>
 
         <div className="merchantIntroCopy">
-          <h1>让每一处小院<br />成为旅人的心安之所</h1>
+          <h1>
+            <span>让每一处小院</span>
+            <span>成为旅人的心安之所</span>
+          </h1>
           <span aria-hidden="true" />
           <p>云栖小院致力于为民宿商家提供高效、便捷的管理工具<br />帮助您轻松管理房源、订单与旅客体验</p>
         </div>
@@ -117,7 +120,10 @@ export function MerchantLogin() {
           </motion.header>
 
           <motion.div className="mobile-brand-copy" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
-            <h1>让每一处小院<br />成为旅人的心安之所</h1>
+            <h1>
+              <span>让每一处小院</span>
+              <span>成为旅人的心安之所</span>
+            </h1>
             <span aria-hidden="true" />
             <p>云栖小院致力于为民宿商家提供高效、便捷的管理工具，帮助您轻松管理房源、订单与旅客体验</p>
           </motion.div>
@@ -138,49 +144,49 @@ export function MerchantLogin() {
         </section>
 
         <div className="mobile-login-card-wrap">
-        <motion.form className="merchantLoginCard mobile-login-card" onSubmit={handleSubmit} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
-          <Link to="/" className="merchantBrand">云栖小院</Link>
-          <div className="merchantLoginTitle">
-            <h1>商家管理中心</h1>
-            <p>请选择登录方式，登录后管理民宿资料</p>
-          </div>
+          <motion.form className="merchantLoginCard mobile-login-card" onSubmit={handleSubmit} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
+            <Link to="/" className="merchantBrand">云栖小院</Link>
+            <div className="merchantLoginTitle">
+              <h1>商家管理中心</h1>
+              <p>请选择登录方式，登录后管理民宿资料</p>
+            </div>
 
-          {configError && <p className="authConfigError">{configError}</p>}
-          {error && <p className="authError">{error}</p>}
+            {configError && <p className="authConfigError">{configError}</p>}
+            {error && <p className="authError">{error}</p>}
 
-          <label className="agreementCheck">
-            <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} />
-            <span>
-              我已阅读并同意
-              <Link to="/business#business-faq">用户协议</Link>
-              和
-              <Link to="/business#business-faq">隐私政策</Link>
-            </span>
-          </label>
+            <label className="agreementCheck">
+              <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} />
+              <span>
+                我已阅读并同意
+                <Link to="/business#business-faq">用户协议</Link>
+                和
+                <Link to="/business#business-faq">隐私政策</Link>
+              </span>
+            </label>
 
-          <button className="merchantLoginButton" type="submit" disabled={submitting || Boolean(configError)}>
-            {submitting ? '正在跳转...' : '手机号验证码登录'}
-          </button>
+            <button className="merchantLoginButton" type="submit" disabled={submitting || Boolean(configError)}>
+              {submitting ? '正在跳转...' : '手机号验证码登录'}
+            </button>
 
-          <div className="socialLoginBlock">
-            <p>其他登录方式</p>
-            <span className="socialLoginButton socialLoginButton--disabled" aria-disabled="true">
-              <MessageCircle size={18} />
-              微信登录 · 即将开放
-            </span>
-            <span className="socialLoginButton socialLoginButton--disabled" aria-disabled="true">
-              <Smartphone size={18} />
-              支付宝登录 · 即将开放
-            </span>
-          </div>
+            <div className="socialLoginBlock">
+              <p>其他登录方式</p>
+              <span className="socialLoginButton socialLoginButton--disabled" aria-disabled="true">
+                <MessageCircle size={18} />
+                微信登录 · 即将开放
+              </span>
+              <span className="socialLoginButton socialLoginButton--disabled" aria-disabled="true">
+                <Smartphone size={18} />
+                支付宝登录 · 即将开放
+              </span>
+            </div>
 
-          <div className="merchantLoginLinks">
-            <Link to="/">
-              <Home size={18} />
-              返回顾客端
-            </Link>
-          </div>
-        </motion.form>
+            <div className="merchantLoginLinks">
+              <Link to="/">
+                <Home size={18} />
+                返回顾客端
+              </Link>
+            </div>
+          </motion.form>
         </div>
       </section>
     </main>
