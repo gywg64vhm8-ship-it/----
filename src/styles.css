@@ -2522,42 +2522,6 @@ button {
   box-shadow: 0 0 0 3px rgba(156, 85, 56, 0.14);
 }
 
-.phoneInputWrap,
-.codeInputWrap {
-  display: grid;
-  align-items: center;
-  gap: 10px;
-}
-
-.phoneInputWrap {
-  grid-template-columns: auto 1fr;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: #fff;
-  padding-left: 12px;
-}
-
-.phoneInputWrap strong {
-  color: var(--accent-dark);
-  font-size: 14px;
-}
-
-.phoneInputWrap input {
-  border: 0;
-  min-height: 48px;
-  padding-left: 0;
-}
-
-.phoneInputWrap:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(156, 85, 56, 0.14);
-}
-
-.codeInputWrap {
-  grid-template-columns: minmax(0, 1fr) 126px;
-}
-
-.codeInputWrap button,
 .socialLoginButton {
   min-height: 48px;
   border: 1px solid rgba(210, 190, 169, 0.95);
@@ -2568,7 +2532,6 @@ button {
   cursor: pointer;
 }
 
-.codeInputWrap button:disabled,
 .socialLoginButton:disabled {
   cursor: not-allowed;
   opacity: 0.62;
@@ -2651,6 +2614,14 @@ button {
 .socialLoginButton:hover {
   border-color: rgba(156, 85, 56, 0.36);
   background: #f7eadb;
+}
+
+.socialLoginButton--disabled,
+.socialLoginButton--disabled:hover {
+  cursor: not-allowed;
+  opacity: 0.68;
+  background: #fffaf3;
+  border-color: rgba(210, 190, 169, 0.95);
 }
 
 .authCallbackPage {
@@ -2814,7 +2785,6 @@ button {
     padding: 22px 18px;
   }
 
-  .codeInputWrap,
   .socialLoginBlock {
     grid-template-columns: 1fr;
   }

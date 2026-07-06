@@ -20,58 +20,7 @@ export const authing = authingConfigError
       redirectResponseMode: 'query'
     })
 
-export function isMainlandPhone(phone) {
-  return /^1[3-9]\d{9}$/.test(phone)
-}
-
-export async function sendPhoneCode(phone) {
+export function loginWithAuthingRedirect() {
   if (!authing) throw new Error(authingConfigError)
-  const response = await fetch(`${normalizedHost}/api/v3/send-sms`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-authing-app-id': appId
-    },
-    body: JSON.stringify({
-      phone,
-      phoneCountryCode: '+86',
-      channel: 'CHANNEL_LOGIN'
-    })
-  })
-
-  const payload = await response.json().catch(() => ({}))
-  if (!response.ok || payload?.statusCode >= 400 || payload?.code >= 400) {
-    const message = payload?.message || payload?.error || 'SEND_SMS_FAILED'
-    throw new Error(message)
-  }
-  return payload
-}
-
-export async function loginByPhoneCode(phone, code) {
-  if (!authing) throw new Error(authingConfigError)
-  if (typeof authing.login !== 'function') {
-    throw new Error('当前 Authing SDK 不支持验证码登录方法')
-  }
-
-  return authing.login({
-    connection: 'PASSCODE',
-    passCodePayload: {
-      phone,
-      phoneCountryCode: '+86',
-      passCode: code
-    },
-    options: {
-      autoRegister: false
-    }
-  }, 'passCode')
-}
-
-export function loginWithProvider(provider) {
-  if (!authing) throw new Error(authingConfigError)
-  return authing.loginWithRedirect({
-    redirectUri,
-    forced: true,
-    customState: { provider },
-    login_page_context: JSON.stringify({ preferredConnection: provider })
-  })
+  return authing.loginWithRedirect()
 }

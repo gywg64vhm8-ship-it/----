@@ -2,9 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import {
   authing,
   authingConfigError,
-  loginByPhoneCode,
-  loginWithProvider,
-  sendPhoneCode
+  loginWithAuthingRedirect
 } from '../lib/authing'
 
 const AuthContext = createContext(null)
@@ -94,15 +92,7 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const requestPhoneCode = async (phone) => sendPhoneCode(phone)
-
-  const signInWithPhone = async ({ phone, code }) => {
-    const state = await loginByPhoneCode(phone, code)
-    return verifyMerchant(state)
-  }
-
-  const signInWithWechat = () => loginWithProvider('wechat')
-  const signInWithAlipay = () => loginWithProvider('alipay')
+  const signInWithHostedLogin = () => loginWithAuthingRedirect()
 
   const handleRedirectCallback = async () => {
     if (!authing) throw new Error(authingConfigError)
@@ -129,10 +119,7 @@ export function AuthProvider({ children }) {
     authError,
     isAuthenticated: Boolean(loginState?.accessToken && user && merchant),
     configError: authingConfigError,
-    requestPhoneCode,
-    signInWithPhone,
-    signInWithWechat,
-    signInWithAlipay,
+    signInWithHostedLogin,
     handleRedirectCallback,
     signOut,
     verifyMerchant
