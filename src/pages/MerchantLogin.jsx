@@ -98,7 +98,10 @@ export function MerchantLogin() {
             <span>成为旅人的心安之所</span>
           </h1>
           <span aria-hidden="true" />
-          <p>云栖小院致力于为民宿商家提供高效、便捷的管理工具<br />帮助您轻松管理房源、订单与旅客体验</p>
+          <p>
+            <span>云栖小院致力于为民宿商家提供高效、便捷的管理工具</span>
+            <span>帮助您轻松管理房源、订单与旅客体验</span>
+          </p>
         </div>
 
         <p className="merchantIntroFoot">
@@ -125,7 +128,10 @@ export function MerchantLogin() {
               <span>成为旅人的心安之所</span>
             </h1>
             <span aria-hidden="true" />
-            <p>云栖小院致力于为民宿商家提供高效、便捷的管理工具，帮助您轻松管理房源、订单与旅客体验</p>
+            <p>
+              <span>云栖小院致力于为民宿商家提供高效、便捷的管理工具</span>
+              <span>帮助您轻松管理房源、订单与旅客体验</span>
+            </p>
           </motion.div>
 
           {mobileMenuOpen && (

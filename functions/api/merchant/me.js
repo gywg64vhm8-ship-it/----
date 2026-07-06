@@ -72,6 +72,14 @@ export async function onRequestOptions() {
 export async function onRequestGet(context) {
   const authorization = context.request.headers.get('Authorization') || ''
 
+  console.log('merchant-me:start', {
+    hasAuthorization: Boolean(authorization),
+    hasDb: Boolean(context.env.DB),
+    hasIssuer: Boolean(context.env.AUTHING_ISSUER),
+    hasAudience: Boolean(context.env.AUTHING_AUDIENCE),
+    hasJwksUrl: Boolean(context.env.AUTHING_JWKS_URL)
+  })
+
   if (!authorization.startsWith('Bearer ')) {
     console.log('merchant auth debug', {
       hasAuthorization: Boolean(authorization),
@@ -105,6 +113,10 @@ export async function onRequestGet(context) {
     const payload = await verifyAuthingToken(token, context)
     const authingUserId = payload.sub
 
+    console.log('merchant-me:token-verified', {
+      hasSubject: Boolean(payload.sub)
+    })
+
     console.log('merchant auth debug', {
       hasAuthorization: Boolean(authorization),
       tokenLength: token.length,
@@ -121,6 +133,13 @@ export async function onRequestGet(context) {
     }
 
     const merchant = await queryMerchant(context, authingUserId)
+
+    console.log('merchant-me:d1-result', {
+      merchantFound: Boolean(merchant),
+      role: merchant?.role || null,
+      status: merchant?.status || null
+    })
+
     if (!merchant || !['merchant', 'admin'].includes(merchant.role)) {
       return json({
         error: 'merchant_not_authorized',
