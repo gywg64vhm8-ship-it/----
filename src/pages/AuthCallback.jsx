@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { authing } from '../lib/authing'
-import { getAccessToken } from '../context/AuthContext'
+import { getAccessToken, verifyMerchantAccessToken } from '../context/AuthContext'
 import { AuthLoadingScreen } from '../components/auth/ProtectedRoute'
 
 let callbackPromise = null
@@ -12,33 +12,12 @@ function processCallbackOnce() {
   return callbackPromise
 }
 
-async function verifyMerchant(accessToken) {
-  const response = await fetch('/api/merchant/me', {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: 'application/json'
-    },
-    cache: 'no-store'
-  })
-
-  const data = await response.json().catch(() => null)
-  if (!response.ok) {
-    throw Object.assign(
-      new Error(data?.error || `merchant_api_${response.status}`),
-      { status: response.status, details: data }
-    )
-  }
-
-  return data
-}
-
 function loginErrorCode(error) {
   if (error?.message === 'missing_access_token') return 'missing_token'
   if (error?.message === 'invalid_callback_parameters') return 'invalid_callback'
-  if (error?.status === 401) return 'merchant_api_401'
-  if (error?.status === 403) return 'merchant_api_403'
-  if (error?.status >= 500) return 'merchant_api_500'
+  if (error?.status === 401) return 'invalid_session'
+  if (error?.status === 403) return 'merchant_not_authorized'
+  if (error?.status >= 500) return 'service_error'
   return 'callback_failed'
 }
 
@@ -46,9 +25,9 @@ function callbackMessage(error) {
   const code = loginErrorCode(error)
   if (code === 'invalid_callback') return '登录回调参数不完整，请重新登录'
   if (code === 'missing_token') return '未获取到登录凭证，请重新登录'
-  if (code === 'merchant_api_401') return '登录凭证无效，请重新登录'
-  if (code === 'merchant_api_403') return '当前账号未开通商家权限'
-  if (code === 'merchant_api_500') return '商家权限验证服务异常，请稍后再试'
+  if (code === 'invalid_session') return '登录凭证无效，请重新登录'
+  if (code === 'merchant_not_authorized') return '当前账号未开通商家权限'
+  if (code === 'service_error') return '商家权限验证服务异常，请稍后再试'
   return '登录回调处理失败，请重新登录'
 }
 
@@ -88,7 +67,7 @@ export function AuthCallback() {
           throw new Error('missing_access_token')
         }
 
-        await verifyMerchant(accessToken)
+        await verifyMerchantAccessToken(accessToken)
         if (cancelled) return
 
         window.history.replaceState({}, document.title, '/auth/callback')

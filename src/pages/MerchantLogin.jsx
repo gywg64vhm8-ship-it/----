@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Home, MessageCircle, Smartphone } from 'lucide-react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useAuth } from '../context/AuthContext'
+import { authing } from '../lib/authing'
+import { getAccessToken, useAuth, verifyMerchantAccessToken } from '../context/AuthContext'
 import { AuthLoadingScreen } from '../components/auth/ProtectedRoute'
 
 function normalizeError(error) {
@@ -44,6 +45,8 @@ export function MerchantLogin() {
     if (nextError === 'no_permission') setError('当前账号未开通商家权限')
     if (nextError === 'invalid_session') setError('登录状态无效，请重新登录')
     if (nextError === 'server_error') setError('商家权限验证服务异常，请稍后再试')
+    if (nextError === 'service_error') setError('商家权限验证服务异常，请稍后再试')
+    if (nextError === 'merchant_not_authorized') setError('当前账号未开通商家权限')
     if (nextError === 'invalid_callback') setError('登录回调参数不完整，请重新登录')
     if (nextError === 'missing_token') setError('未获取到登录凭证，请重新登录')
     if (nextError === 'callback_failed') setError('登录回调处理失败，请重新登录')
@@ -51,6 +54,32 @@ export function MerchantLogin() {
     if (nextError === 'merchant_api_403') setError('当前账号未开通商家权限')
     if (nextError === 'merchant_api_500') setError('商家权限验证服务异常，请稍后再试')
   }, [location.search])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function enterDashboardIfSessionExists() {
+      if (loading || configError || !authing) return
+      try {
+        const loginState = await authing.getLoginState({ ignoreCache: false })
+        if (cancelled) return
+        const accessToken = getAccessToken(loginState)
+        if (!accessToken) return
+
+        const responseData = await verifyMerchantAccessToken(accessToken)
+        if (!cancelled && responseData?.authenticated) {
+          window.location.replace('/merchant/dashboard')
+        }
+      } catch {
+        // 未登录或登录态无效时停留在登录页，不显示系统错误。
+      }
+    }
+
+    enterDashboardIfSessionExists()
+    return () => {
+      cancelled = true
+    }
+  }, [loading, configError])
 
   if (loading) return <AuthLoadingScreen text="正在检查登录状态..." />
   if (isAuthenticated) return <Navigate to="/merchant/dashboard" replace />

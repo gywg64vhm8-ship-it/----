@@ -16,8 +16,9 @@ export const authing = authingConfigError
       appId,
       domain: normalizedHost,
       redirectUri,
-      scope: 'openid profile phone email',
-      redirectResponseMode: 'query'
+      scope: 'openid profile phone',
+      redirectResponseMode: 'query',
+      redirectToOriginalUri: false
     })
 
 export function loginWithAuthingRedirect() {

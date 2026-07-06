@@ -23,7 +23,7 @@ function publicUser(userInfo, loginState) {
   }
 }
 
-async function verifyMerchantProfile(accessToken) {
+export async function verifyMerchantAccessToken(accessToken) {
   if (!accessToken) {
     const error = new Error('missing_access_token')
     error.status = 401
@@ -66,7 +66,7 @@ export function AuthProvider({ children }) {
   const verifyMerchant = async (accessToken, state = null) => {
     const [userInfo, merchantProfile] = await Promise.all([
       authing.getUserInfo({ accessToken }),
-      verifyMerchantProfile(accessToken)
+      verifyMerchantAccessToken(accessToken)
     ])
     if (userInfo?.statusCode >= 400) throw new Error('UNAUTHENTICATED')
     if (state) setLoginState(state)
@@ -123,7 +123,7 @@ export function AuthProvider({ children }) {
     clearAuthData()
     if (options.localOnly) return
     if (authing) {
-      await authing.logoutWithRedirect({ redirectUri: `${window.location.origin}/merchant/login` })
+      await authing.logoutWithRedirect({ redirectUri: 'https://minsu-4h7.pages.dev/merchant/login' })
     }
   }
 
