@@ -13,6 +13,18 @@
   --green-soft: #e6efe3;
   --shadow: 0 18px 44px rgba(62, 45, 31, 0.13);
   --radius: 8px;
+  --page-bg: #f6f1e8;
+  --card-bg: #fcf9f4;
+  --clay: #a85432;
+  --clay-dark: #7c3e27;
+  --deep-brown: #35231b;
+  --warm-gray: #74675f;
+  --sage: #74806b;
+  --sand: #d8c4aa;
+  --redesign-line: rgba(93, 65, 48, 0.14);
+  --site-width: 1220px;
+  --site-pad: clamp(18px, 4vw, 64px);
+  --soft-shadow: 0 24px 70px rgba(74, 48, 31, 0.13);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     "Microsoft YaHei", sans-serif;
@@ -3307,5 +3319,1029 @@ button {
 
   .scrollCue {
     display: none;
+  }
+}
+
+/* Responsive site builder redesign - customer homepage */
+body {
+  background:
+    radial-gradient(circle at 16% 8%, rgba(216, 196, 170, 0.32), transparent 28%),
+    linear-gradient(180deg, #f7f1e7 0%, #fbf7ef 48%, #f4eadf 100%);
+  color: var(--deep-brown);
+}
+
+.topNav {
+  min-height: 70px;
+  padding: 0 var(--site-pad);
+  background: rgba(246, 241, 232, 0.74);
+  border-bottom: 1px solid rgba(93, 65, 48, 0.1);
+  backdrop-filter: blur(18px);
+}
+
+.topNav.isScrolled {
+  min-height: 58px;
+  background: rgba(252, 249, 244, 0.9);
+  box-shadow: 0 12px 36px rgba(73, 45, 27, 0.1);
+}
+
+.brandMark {
+  font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
+  color: var(--clay-dark);
+  font-size: 24px;
+  letter-spacing: 0;
+}
+
+.navLinks {
+  gap: 8px;
+}
+
+.navLinks a,
+.navLinks button {
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: rgba(53, 35, 27, 0.76);
+  font-size: 15px;
+}
+
+.navLinks a.isActive {
+  background: rgba(168, 84, 50, 0.1);
+  color: var(--clay-dark);
+}
+
+.navLinks .navCta,
+.navLinks button.navCta,
+.navCta {
+  background: var(--clay);
+  color: #fff !important;
+  box-shadow: 0 12px 26px rgba(168, 84, 50, 0.18);
+}
+
+.scrollProgress {
+  background: linear-gradient(90deg, var(--clay), #c4865d);
+}
+
+.hero {
+  min-height: clamp(720px, 92vh, 940px);
+  padding: 0 var(--site-pad);
+  display: grid;
+  align-items: end;
+  overflow: hidden;
+  background: #d8c4aa;
+}
+
+.hero__imageWrap::after {
+  background:
+    linear-gradient(90deg, rgba(36, 25, 19, 0.68) 0%, rgba(36, 25, 19, 0.44) 38%, rgba(36, 25, 19, 0.14) 100%),
+    linear-gradient(0deg, rgba(53, 35, 27, 0.42), transparent 50%);
+}
+
+.hero__content {
+  position: relative;
+  z-index: 2;
+  width: min(820px, 100%);
+  margin: 0 auto;
+  padding: 160px 0 145px;
+  color: #fffaf3;
+}
+
+.siteName,
+.sectionEyebrow {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(168, 84, 50, 0.2);
+  border-radius: 999px;
+  background: rgba(168, 84, 50, 0.09);
+  color: var(--clay-dark);
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+}
+
+.hero .siteName {
+  border-color: rgba(255, 250, 243, 0.34);
+  background: rgba(255, 250, 243, 0.14);
+  color: #fffaf3;
+}
+
+.hero h1 {
+  max-width: 880px;
+  margin: 22px 0 0;
+  font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
+  font-size: clamp(48px, 6.5vw, 92px);
+  line-height: 1.12;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.hero h1 span {
+  display: block;
+  white-space: nowrap;
+}
+
+.hero__description {
+  max-width: 650px;
+  margin-top: 24px;
+  color: rgba(255, 250, 243, 0.88);
+  font-size: clamp(18px, 2vw, 24px);
+  line-height: 1.8;
+}
+
+.heroActions {
+  margin-top: 34px;
+  gap: 14px;
+}
+
+.primaryCta,
+.secondaryCta,
+.closingCta,
+.footerPrimaryButton,
+.roomConsultButton {
+  min-height: 52px;
+  border-radius: 999px;
+  font-weight: 850;
+}
+
+.primaryCta,
+.closingCta,
+.footerPrimaryButton,
+.roomConsultButton {
+  background: var(--clay);
+  color: #fff;
+  border: 1px solid rgba(168, 84, 50, 0.2);
+}
+
+.secondaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 20px;
+  border: 1px solid rgba(255, 250, 243, 0.56);
+  background: rgba(255, 250, 243, 0.14);
+  color: #fffaf3;
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.heroMeta span {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 250, 243, 0.13);
+  color: rgba(255, 250, 243, 0.82);
+  font-size: 13px;
+}
+
+.scrollCue {
+  bottom: 32px;
+  background: rgba(255, 250, 243, 0.15);
+  color: #fffaf3;
+}
+
+.featureStrip {
+  position: relative;
+  z-index: 3;
+  width: min(calc(100% - 2 * var(--site-pad)), var(--site-width));
+  margin: -48px auto 0;
+  padding: 18px;
+  border: 1px solid rgba(255, 250, 243, 0.6);
+  border-radius: 30px;
+  background: rgba(252, 249, 244, 0.92);
+  box-shadow: var(--soft-shadow);
+}
+
+.featureStrip article {
+  border-right: 1px solid rgba(93, 65, 48, 0.12);
+}
+
+.featureStrip article:last-child {
+  border-right: 0;
+}
+
+.featureStrip span,
+.whyGrid article span,
+.assistantRail > span,
+.transportIcon {
+  background: #f1e4d4;
+  color: var(--clay-dark);
+}
+
+.section {
+  width: min(calc(100% - 2 * var(--site-pad)), var(--site-width));
+  padding: 110px 0;
+}
+
+.sectionTitle {
+  align-items: end;
+  margin-bottom: 34px;
+}
+
+.sectionTitle--center {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.sectionTitle h2,
+.storyIntro h2,
+.lifestyleCopy h2,
+.scenarioPanel h2,
+.closing h2 {
+  margin: 12px 0 0;
+  color: var(--deep-brown);
+  font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif;
+  font-size: clamp(34px, 4vw, 58px);
+  line-height: 1.18;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.sectionTitle h2 span,
+.storyIntro h2 span,
+.lifestyleCopy h2 span {
+  display: block;
+}
+
+.sectionTitle p,
+.storyIntro p,
+.lifestyleCopy p,
+.scenarioPanel p,
+.closing p {
+  color: var(--warm-gray);
+  font-size: 17px;
+  line-height: 1.85;
+}
+
+.storySection {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: clamp(36px, 6vw, 86px);
+  align-items: center;
+}
+
+.storyIntro {
+  max-width: 570px;
+}
+
+.storyIntro > p:last-child {
+  margin-top: 22px;
+}
+
+.storyPointGrid {
+  display: grid;
+  gap: 16px;
+}
+
+.storyPointGrid article {
+  padding: 26px;
+  border: 1px solid var(--redesign-line);
+  border-radius: 28px;
+  background: rgba(252, 249, 244, 0.78);
+  box-shadow: 0 16px 40px rgba(74, 48, 31, 0.07);
+}
+
+.storyPointGrid span {
+  color: var(--sage);
+  font-family: Georgia, serif;
+  font-size: 28px;
+}
+
+.storyPointGrid h3,
+.whyGrid h3,
+.scenarioList h3,
+.customerFaqGrid h3 {
+  margin: 12px 0 8px;
+  color: var(--clay-dark);
+  font-size: 22px;
+}
+
+.lifestyleSection {
+  width: 100%;
+  max-width: none;
+  padding: 110px var(--site-pad);
+  background: linear-gradient(180deg, rgba(216, 196, 170, 0.2), rgba(252, 249, 244, 0.2));
+}
+
+.lifestyleGrid {
+  width: min(100%, var(--site-width));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(34px, 6vw, 78px);
+  align-items: center;
+}
+
+.lifestyleCopy {
+  max-width: 510px;
+}
+
+.assetHint {
+  width: fit-content;
+  margin-top: 22px !important;
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: rgba(116, 128, 107, 0.12);
+  color: #5f6e55 !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+.lifestyleMosaic {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-rows: 280px 240px;
+  gap: 16px;
+}
+
+.lifestyleMosaic figure,
+.guideVisual {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 30px;
+  background: #eadbca;
+  box-shadow: var(--soft-shadow);
+}
+
+.lifestyleMosaic .mosaicMain {
+  grid-row: 1 / 3;
+}
+
+.lifestyleMosaic img,
+.guideVisual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.roomsSection {
+  padding-top: 112px;
+}
+
+.roomGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+  gap: 22px;
+}
+
+.roomCard {
+  border-radius: 28px;
+  background: rgba(252, 249, 244, 0.94);
+  border: 1px solid var(--redesign-line);
+  box-shadow: 0 16px 42px rgba(74, 48, 31, 0.09);
+  overflow: hidden;
+}
+
+.roomCard--featured {
+  grid-row: span 2;
+}
+
+.roomCard__mediaButton {
+  min-height: 260px;
+  border-radius: 0;
+  background: #eadbca;
+}
+
+.roomCard--featured .roomCard__mediaButton {
+  min-height: 430px;
+}
+
+.roomCard__image {
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.roomImageBadge {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: 1;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(53, 35, 27, 0.58);
+  color: #fffaf3;
+  font-size: 12px;
+}
+
+.roomCard__body {
+  padding: 24px;
+}
+
+.roomCard--featured .roomCard__body {
+  padding: 30px;
+}
+
+.roomCard__head h3 {
+  color: var(--deep-brown);
+  font-size: clamp(23px, 2.3vw, 34px);
+}
+
+.roomCard__head p {
+  color: var(--clay);
+}
+
+.facilityList span,
+.quickQuestions button {
+  border-color: rgba(168, 84, 50, 0.18);
+  background: #f8efe5;
+  color: #7c513c;
+}
+
+.roomCardActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.roomCardActions button {
+  flex: 1;
+  min-height: 44px;
+}
+
+.roomConsultButton {
+  border: 0;
+  cursor: pointer;
+}
+
+.roomAssetHint {
+  margin: 18px 0 0 !important;
+}
+
+.whySection {
+  padding-top: 80px;
+}
+
+.whyGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.whyGrid article,
+.customerFaqGrid article {
+  padding: 26px;
+  border-radius: 26px;
+  border: 1px solid var(--redesign-line);
+  background: rgba(252, 249, 244, 0.82);
+  box-shadow: 0 14px 34px rgba(74, 48, 31, 0.07);
+}
+
+.whyGrid article span {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.consultSection {
+  width: 100%;
+  max-width: none;
+  padding: 118px var(--site-pad);
+  background:
+    linear-gradient(135deg, rgba(53, 35, 27, 0.92), rgba(88, 54, 34, 0.86)),
+    url("/assets/lifestyle/courtyard-flower-entry.webp") center / cover;
+}
+
+.consultSection .sectionTitle {
+  width: min(100%, var(--site-width));
+  margin: 0 auto 34px;
+}
+
+.consultSection .sectionTitle h2,
+.consultSection .sectionTitle p {
+  color: #fffaf3;
+}
+
+.consultSection .sectionEyebrow {
+  border-color: rgba(255, 250, 243, 0.22);
+  background: rgba(255, 250, 243, 0.1);
+  color: #fffaf3;
+}
+
+.consultExperience {
+  width: min(100%, var(--site-width));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(260px, 0.42fr) minmax(0, 0.58fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.assistantRail,
+.chatPanel {
+  border: 1px solid rgba(255, 250, 243, 0.18);
+  border-radius: 30px;
+  background: rgba(252, 249, 244, 0.94);
+  box-shadow: 0 26px 70px rgba(20, 12, 8, 0.22);
+}
+
+.assistantRail {
+  padding: 30px;
+}
+
+.assistantRail > span {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.assistantRail h3 {
+  margin: 24px 0 12px;
+  color: var(--deep-brown);
+  font-size: 28px;
+  line-height: 1.22;
+}
+
+.assistantRail p {
+  color: var(--warm-gray);
+  line-height: 1.85;
+}
+
+.assistantRail div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.assistantRail strong,
+.assistantRail em {
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: #f3e5d5;
+  color: var(--clay-dark);
+  font-style: normal;
+  font-size: 13px;
+}
+
+.chatPanel {
+  width: 100%;
+  max-width: none;
+}
+
+.guideSection {
+  width: min(calc(100% - 2 * var(--site-pad)), var(--site-width));
+}
+
+.guideLayout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.42fr) minmax(0, 0.58fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.guideVisual {
+  position: sticky;
+  top: 92px;
+  height: 620px;
+}
+
+.guideVisual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(53, 35, 27, 0.42), transparent 45%);
+}
+
+.guideVisual figcaption {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  z-index: 1;
+  color: rgba(255, 250, 243, 0.82);
+  font-size: 12px;
+}
+
+.guideList {
+  display: grid;
+  gap: 14px;
+}
+
+.guideItem {
+  border-radius: 24px;
+  background: rgba(252, 249, 244, 0.86);
+}
+
+.guideButton {
+  align-items: flex-start;
+  padding: 22px;
+}
+
+.guideButton span {
+  color: var(--sage);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.guideButton h3 {
+  margin-top: 6px;
+}
+
+.guideMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.guideMeta em {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #f4eadc;
+  color: var(--warm-gray);
+  font-style: normal;
+  font-size: 13px;
+}
+
+.transportSection {
+  padding-top: 70px;
+}
+
+.transportGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.transportCard {
+  border-radius: 24px;
+  background: rgba(252, 249, 244, 0.86);
+}
+
+.scenarioSection {
+  width: 100%;
+  max-width: none;
+  padding: 90px var(--site-pad);
+}
+
+.scenarioPanel {
+  width: min(100%, var(--site-width));
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 58px);
+  border-radius: 34px;
+  background:
+    linear-gradient(90deg, rgba(252, 249, 244, 0.96), rgba(252, 249, 244, 0.74)),
+    url("/assets/kunming/dianchi-lake.webp") right center / auto 100% no-repeat;
+  box-shadow: var(--soft-shadow);
+}
+
+.scenarioList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.scenarioList article {
+  padding: 22px;
+  border: 1px solid rgba(93, 65, 48, 0.12);
+  border-radius: 22px;
+  background: rgba(255, 253, 248, 0.78);
+}
+
+.scenarioList svg {
+  color: var(--clay);
+}
+
+.customerFaqGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.closing {
+  width: 100%;
+  max-width: none;
+  padding: 92px var(--site-pad);
+  background:
+    linear-gradient(90deg, rgba(246, 230, 211, 0.92), rgba(246, 230, 211, 0.78)),
+    url("/assets/lifestyle/courtyard-flower-entry.webp") right center / auto 130% no-repeat;
+}
+
+.closing h2,
+.closing p,
+.closing .sectionEyebrow {
+  width: min(100%, 760px);
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.closing .sectionEyebrow {
+  display: flex;
+  justify-content: center;
+}
+
+.closingCta {
+  margin-top: 26px;
+}
+
+.contactFooter {
+  width: 100%;
+  max-width: none;
+  padding: 82px var(--site-pad) 112px;
+  background: #35231b;
+}
+
+.contactFooterGrid {
+  width: min(100%, var(--site-width));
+  margin: 0 auto;
+}
+
+.contactFooterCard {
+  border-color: rgba(255, 250, 243, 0.12);
+  border-radius: 26px;
+  background: rgba(255, 250, 243, 0.07);
+  color: #fffaf3;
+}
+
+.contactFooterCard h2,
+.contactFooterCard strong,
+.quickEntryCard a,
+.quickEntryCard button {
+  color: #fffaf3;
+}
+
+.contactFooterCard p,
+.contactInfoList dd,
+.footerCopyright,
+.merchantEntryLink {
+  color: rgba(255, 250, 243, 0.68);
+}
+
+.footerMinorLinks {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .roomCard:hover,
+  .whyGrid article:hover,
+  .customerFaqGrid article:hover,
+  .scenarioList article:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 58px rgba(74, 48, 31, 0.12);
+  }
+
+  .lifestyleMosaic figure:hover img,
+  .guideVisual:hover img {
+    transform: scale(1.025);
+  }
+
+  .lifestyleMosaic img,
+  .guideVisual img,
+  .roomCard,
+  .whyGrid article,
+  .customerFaqGrid article,
+  .scenarioList article {
+    transition: transform 220ms ease, box-shadow 220ms ease;
+  }
+}
+
+@media (max-width: 1180px) {
+  .storySection,
+  .lifestyleGrid,
+  .consultExperience,
+  .guideLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .guideVisual {
+    position: relative;
+    top: auto;
+    height: 420px;
+  }
+
+  .whyGrid,
+  .transportGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .topNav {
+    min-height: 60px;
+    padding: 0 16px;
+  }
+
+  .mobileMenuButton {
+    min-width: 48px;
+    min-height: 44px;
+    border-radius: 999px;
+  }
+
+  .navLinks.isOpen {
+    top: 68px;
+    right: 14px;
+    width: min(270px, calc(100vw - 28px));
+    border-radius: 22px;
+    background: rgba(252, 249, 244, 0.98);
+  }
+
+  .hero {
+    min-height: 720px;
+    padding: 0 20px;
+    align-items: end;
+  }
+
+  .hero__imageWrap::after {
+    background:
+      linear-gradient(180deg, rgba(53, 35, 27, 0.2) 0%, rgba(53, 35, 27, 0.24) 34%, rgba(53, 35, 27, 0.72) 100%);
+  }
+
+  .hero__content {
+    padding: 118px 0 112px;
+  }
+
+  .hero h1 {
+    font-size: clamp(34px, 10vw, 52px);
+    line-height: 1.16;
+  }
+
+  .hero__description {
+    font-size: 17px;
+  }
+
+  .heroActions {
+    display: grid;
+  }
+
+  .primaryCta,
+  .secondaryCta,
+  .closingCta {
+    width: 100%;
+  }
+
+  .featureStrip {
+    width: calc(100% - 28px);
+    grid-template-columns: 1fr 1fr;
+    margin-top: -34px;
+    border-radius: 24px;
+  }
+
+  .featureStrip article {
+    border-right: 0;
+    border-bottom: 1px solid rgba(93, 65, 48, 0.12);
+  }
+
+  .featureStrip article:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .section {
+    width: calc(100% - 36px);
+    padding: 72px 0;
+  }
+
+  .sectionTitle {
+    align-items: start;
+    gap: 12px;
+  }
+
+  .sectionTitle h2,
+  .storyIntro h2,
+  .lifestyleCopy h2,
+  .scenarioPanel h2,
+  .closing h2 {
+    font-size: clamp(28px, 8vw, 38px);
+  }
+
+  .storySection {
+    gap: 26px;
+  }
+
+  .lifestyleSection,
+  .consultSection,
+  .scenarioSection,
+  .closing,
+  .contactFooter {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .lifestyleMosaic {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .lifestyleMosaic figure,
+  .lifestyleMosaic .mosaicMain {
+    grid-row: auto;
+    min-height: 240px;
+  }
+
+  .roomGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .roomCard--featured {
+    grid-row: auto;
+  }
+
+  .roomCard--featured .roomCard__mediaButton,
+  .roomCard__mediaButton {
+    min-height: 260px;
+  }
+
+  .roomCardActions {
+    display: grid;
+  }
+
+  .consultExperience {
+    gap: 16px;
+  }
+
+  .assistantRail,
+  .chatPanel {
+    border-radius: 24px;
+  }
+
+  .assistantRail {
+    padding: 24px;
+  }
+
+  .guideVisual {
+    height: 310px;
+  }
+
+  .guideButton {
+    padding: 18px;
+  }
+
+  .whyGrid,
+  .transportGrid,
+  .scenarioList,
+  .customerFaqGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .scenarioPanel {
+    border-radius: 26px;
+    background:
+      linear-gradient(180deg, rgba(252, 249, 244, 0.97), rgba(252, 249, 244, 0.88)),
+      url("/assets/kunming/dianchi-lake.webp") center bottom / 100% auto no-repeat;
+  }
+
+  .contactFooter {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 430px) {
+  .brandMark {
+    font-size: 21px;
+  }
+
+  .hero {
+    min-height: 690px;
+  }
+
+  .hero h1 span {
+    white-space: nowrap;
+  }
+
+  .featureStrip {
+    grid-template-columns: 1fr;
+  }
+
+  .featureStrip article {
+    border-bottom: 1px solid rgba(93, 65, 48, 0.12);
+  }
+
+  .featureStrip article:last-child {
+    border-bottom: 0;
+  }
+
+  .storyPointGrid article,
+  .whyGrid article,
+  .customerFaqGrid article,
+  .roomCard__body {
+    padding: 20px;
+  }
+
+  .quickQuestions button {
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lifestyleMosaic img,
+  .guideVisual img,
+  .hero__picture {
+    transform: none !important;
   }
 }

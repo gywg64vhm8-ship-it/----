@@ -21,8 +21,10 @@ import {
   Clock,
   Copy,
   FileText,
+  Heart,
   Home,
   Headphones,
+  Leaf,
   MapPinned,
   Menu,
   MessageCircle,
@@ -30,6 +32,7 @@ import {
   Phone,
   Plane,
   ReceiptText,
+  Route as RouteIcon,
   Send,
   Smile,
   Sparkles,
@@ -60,6 +63,37 @@ const hostActions = [
   { label: '查看推荐路线', href: '#guide' },
   { label: '联系管家', action: 'wechat' },
   { label: '查看房型', href: '#rooms' }
+]
+
+const lifestyleImages = {
+  courtyard: '/assets/lifestyle/courtyard-flower-entry.webp',
+  dianchiSunset: '/assets/kunming/dianchi-sunset.webp',
+  dianchiLake: '/assets/kunming/dianchi-lake.webp'
+}
+
+const brandStoryPoints = [
+  ['在城市与滇池之间', '保留昆明旅居的轻松节奏，到市区和滇池方向都方便。'],
+  ['把咨询说清楚', '房型、停车、入住、路线和退订规则集中展示，少一点反复确认。'],
+  ['让行程慢下来', '适合短住旅行、亲子周末和看花看湖，不追求赶景点。']
+]
+
+const whyChooseItems = [
+  ['真实房型信息', '价格、人数、床型、设施和入住规则都集中在数据文件中维护。', BedDouble],
+  ['昆明路线建议', '按一日游、两日慢游、亲子和滇池方向整理常见路线。', RouteIcon],
+  ['在线接待演示', '常见问题先由本地知识库回答，再把实时房态转给管家确认。', Headphones],
+  ['联系路径清楚', '电话、微信、导航和二维码都从统一配置读取，方便替换真实资料。', MessageCircle]
+]
+
+const stayScenarios = [
+  ['短住旅行', '想看翠湖、老街、南屏街，又希望晚上回到安静房间。'],
+  ['亲子周末', '需要更轻松的路线、更多休息时间和清楚的入住指引。'],
+  ['看花看湖', '去滇池、斗南花市、西山方向，行程不急，留一点发呆时间。']
+]
+
+const customerFaqs = [
+  ['这里的信息都真实吗？', '房型结构、价格和联系方式为演示数据；线上素材中图库图片已作为“氛围展示图”处理，不冒充真实客房。'],
+  ['房态和价格能直接确认吗？', '不能直接承诺实时有房。实时房态和价格请联系管家确认。'],
+  ['可以只看攻略不订房吗？', '可以。路线内容用于帮助你判断昆明行程节奏，具体距离和交通请按当天地图为准。']
 ]
 
 const revealVariants = {
@@ -153,14 +187,16 @@ function Header({ isBusiness = false }) {
       ]
     : [
         ['房型', '#rooms'],
-        ['环境', '#top'],
+        ['环境', '#space'],
+        ['管家', '#consult'],
         ['攻略', '#guide'],
-        ['常见问题', '#consult'],
+        ['常见问题', '#faq'],
+        ['商家合作', '/business'],
         ['预订房间', '#rooms']
       ]
 
   useEffect(() => {
-    const sections = isBusiness ? ['features', 'packages', 'process', 'business-faq'] : ['rooms', 'consult', 'guide', 'transport']
+    const sections = isBusiness ? ['features', 'packages', 'process', 'business-faq'] : ['space', 'rooms', 'consult', 'guide', 'transport', 'faq']
     const update = () => {
       setScrolled(window.scrollY > 60)
       const current = sections.findLast((id) => {
@@ -322,17 +358,27 @@ function Hero({ brand, onContactChoice }) {
       </div>
       <motion.div className="hero__content" initial="hidden" animate="visible" variants={staggerContainer}>
         <motion.p className="siteName" variants={revealVariants} custom={20}>昆明 · 慢生活民宿</motion.p>
-        <motion.h1 variants={revealVariants} custom={20}>{brand.tagline}</motion.h1>
-        <motion.p className="hero__description" variants={revealVariants} custom={20} transition={{ delay: 0.12 }}>{brand.description}</motion.p>
+        <motion.h1 variants={revealVariants} custom={20}>
+          <span>住进昆明的慢时光，</span>
+          <span>醒来就是花香和风。</span>
+        </motion.h1>
+        <motion.p className="hero__description" variants={revealVariants} custom={20} transition={{ delay: 0.12 }}>
+          在城市与滇池之间，留一间有阳光、有温度，也懂你的房间。
+        </motion.p>
         <motion.div className="heroActions" variants={revealVariants} custom={20} transition={{ delay: 0.22 }}>
           <button type="button" className="primaryCta" onClick={onContactChoice}>
             <BedDouble size={20} />
-            查询房型与价格
+            查看房型与价格
           </button>
           <a href="#consult" className="secondaryCta">
             <MessageCircle size={20} />
             咨询智能管家
           </a>
+        </motion.div>
+        <motion.div className="heroMeta" variants={revealVariants} custom={20}>
+          <span>滇池方向</span>
+          <span>亲子周末</span>
+          <span>演示项目</span>
         </motion.div>
       </motion.div>
       <motion.a className="scrollCue" href="#rooms" aria-label="向下浏览" animate={reduceMotion ? undefined : { y: [0, 7, 0] }} transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}>
@@ -365,11 +411,108 @@ function FeatureStrip() {
   )
 }
 
-function RoomCard({ room, onOpen }) {
+function BrandStory() {
   return (
-    <motion.article className="roomCard" variants={revealVariants}>
+    <RevealSection className="section storySection" id="story">
+      <motion.div className="storyIntro" variants={revealVariants}>
+        <p className="sectionEyebrow">About Yunqi</p>
+        <h2>
+          <span>不是匆忙经过，</span>
+          <span>是在昆明多留一阵。</span>
+        </h2>
+        <p>云栖小院把房型、路线和常见咨询整理成一个可直接浏览的接待页。你可以先看清空间与位置，再把实时房态交给管家确认。</p>
+      </motion.div>
+      <StaggerGroup className="storyPointGrid">
+        {brandStoryPoints.map(([title, text], index) => (
+          <motion.article key={title} variants={revealVariants}>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </motion.article>
+        ))}
+      </StaggerGroup>
+    </RevealSection>
+  )
+}
+
+function LifestyleSection() {
+  return (
+    <RevealSection className="section lifestyleSection" id="space">
+      <div className="lifestyleGrid">
+        <motion.div className="lifestyleCopy" variants={revealVariants}>
+          <p className="sectionEyebrow">Space & Slow Living</p>
+          <h2>
+            <span>有木质、阳光、</span>
+            <span>也有云南院落的松弛感。</span>
+          </h2>
+          <p>房间以暖色、布艺和自然光为主，适合把行李放下，慢慢计划第二天的滇池、花市和老城路线。</p>
+          <p className="assetHint">以下图片为氛围展示图，真实房源照片请联系管家确认。</p>
+        </motion.div>
+        <motion.div className="lifestyleMosaic" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }}>
+          <motion.figure className="mosaicMain" variants={revealVariants}>
+            <img src="/assets/rooms/room-wooden-sunlight.webp" alt="阳光照进木质卧室氛围展示" loading="lazy" decoding="async" width="900" height="675" />
+          </motion.figure>
+          <motion.figure variants={revealVariants}>
+            <img src={lifestyleImages.courtyard} alt="云南院落花草入口氛围展示" loading="lazy" decoding="async" width="900" height="675" />
+          </motion.figure>
+          <motion.figure variants={revealVariants}>
+            <img src={lifestyleImages.dianchiSunset} alt="滇池日落" loading="lazy" decoding="async" width="1100" height="720" />
+          </motion.figure>
+        </motion.div>
+      </div>
+    </RevealSection>
+  )
+}
+
+function WhyChoose() {
+  return (
+    <RevealSection className="section whySection" id="why">
+      <motion.div className="sectionTitle sectionTitle--center" variants={revealVariants}>
+        <p className="sectionEyebrow">Why Stay Here</p>
+        <h2>为什么选择云栖小院</h2>
+        <p>把住前最容易反复问的问题先说清楚，让预订和出行都轻一点。</p>
+      </motion.div>
+      <StaggerGroup className="whyGrid">
+        {whyChooseItems.map(([title, text, Icon]) => (
+          <motion.article key={title} variants={revealVariants}>
+            <span><Icon size={22} /></span>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </motion.article>
+        ))}
+      </StaggerGroup>
+    </RevealSection>
+  )
+}
+
+function StayScenarios() {
+  return (
+    <RevealSection className="section scenarioSection">
+      <motion.div className="scenarioPanel" variants={revealVariants}>
+        <div>
+          <p className="sectionEyebrow">For Your Trip</p>
+          <h2>适合这些昆明小行程</h2>
+        </div>
+        <StaggerGroup className="scenarioList">
+          {stayScenarios.map(([title, text]) => (
+            <motion.article key={title} variants={revealVariants}>
+              <Heart size={19} />
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </motion.article>
+          ))}
+        </StaggerGroup>
+      </motion.div>
+    </RevealSection>
+  )
+}
+
+function RoomCard({ room, onOpen, onWechat, featured = false }) {
+  return (
+    <motion.article className={`roomCard ${featured ? 'roomCard--featured' : ''}`} variants={revealVariants}>
       <button className="roomCard__mediaButton" type="button" onClick={() => onOpen(room)}>
         <img src={room.image} alt={room.name} className="roomCard__image" loading="lazy" decoding="async" width="800" height="600" />
+        <span className="roomImageBadge">氛围展示图</span>
       </button>
       <div className="roomCard__body">
         <div className="roomCard__head">
@@ -391,13 +534,18 @@ function RoomCard({ room, onOpen }) {
           </span>
         </div>
         <div className="facilityList">
-          {room.facilities.map((item) => (
+          {room.facilities.slice(0, featured ? 5 : 4).map((item) => (
             <span key={item}>{item}</span>
           ))}
         </div>
-        <button className="textButton" type="button" onClick={() => onOpen(room)}>
-          查看房型详情
-        </button>
+        <div className="roomCardActions">
+          <button className="textButton" type="button" onClick={() => onOpen(room)}>
+            查看房型详情
+          </button>
+          <button className="roomConsultButton" type="button" onClick={onWechat}>
+            立即咨询
+          </button>
+        </div>
       </div>
     </motion.article>
   )
@@ -475,21 +623,25 @@ function RoomModal({ room, onClose, onWechat }) {
 
 function Rooms({ rooms, onWechat }) {
   const [selectedRoom, setSelectedRoom] = useState(null)
+  const [featuredRoom, ...restRooms] = rooms
 
   return (
-    <RevealSection className="section" id="rooms">
+    <RevealSection className="section roomsSection" id="rooms">
       <motion.div className="sectionTitle" variants={revealVariants}>
         <div>
-          <h2>房型与价格</h2>
-          <p>精选舒适房型，落地窗 / 独立卫浴 / 高速Wi-Fi</p>
+          <p className="sectionEyebrow">Rooms & Price</p>
+          <h2>精选房型与价格</h2>
+          <p>先看人数、床型、设施和起步价，再联系管家确认实时房态。</p>
         </div>
-        <a href="#consult">查看全部房型 →</a>
+        <a href="#consult">问问智能管家 →</a>
       </motion.div>
       <StaggerGroup className="roomGrid">
-        {rooms.map((room) => (
-          <RoomCard key={room.id} room={room} onOpen={setSelectedRoom} />
+        {featuredRoom && <RoomCard key={featuredRoom.id} room={featuredRoom} onOpen={setSelectedRoom} onWechat={onWechat} featured />}
+        {restRooms.map((room) => (
+          <RoomCard key={room.id} room={room} onOpen={setSelectedRoom} onWechat={onWechat} />
         ))}
       </StaggerGroup>
+      <p className="assetHint roomAssetHint">房型图片含氛围展示图，真实客房照片和实时房态请联系管家确认。</p>
       <AnimatePresence>
         <RoomModal room={selectedRoom} onClose={() => setSelectedRoom(null)} onWechat={onWechat} />
       </AnimatePresence>
@@ -546,8 +698,25 @@ function Consultation({ faq, onWechat }) {
   return (
     <RevealSection className="section consultSection" id="consult">
       <motion.div className="sectionTitle" variants={revealVariants}>
-        <h2>先问问智能管家</h2>
+        <div>
+          <p className="sectionEyebrow">Smart Host Demo</p>
+          <h2>先问问智能管家</h2>
+          <p>智能管家演示：用本地知识库回答房态、入住、停车、交通和昆明路线，再引导联系人工管家确认。</p>
+        </div>
       </motion.div>
+
+      <div className="consultExperience">
+      <motion.aside className="assistantRail" variants={revealVariants}>
+        <span><Leaf size={20} /></span>
+        <h3>入住前先把问题问清楚</h3>
+        <p>试着问“今天还有房吗”“从机场怎么过来”“两天亲子路线怎么安排”。实时房态不会直接承诺，会提示联系管家确认。</p>
+        <div>
+          <strong>可处理咨询</strong>
+          <em>房型匹配</em>
+          <em>路线推荐</em>
+          <em>停车交通</em>
+        </div>
+      </motion.aside>
 
       <motion.div className="chatPanel" variants={revealVariants}>
         <div className="chatHeader">
@@ -627,6 +796,7 @@ function Consultation({ faq, onWechat }) {
 
         {question.trim() && <p className="answerPreview">可能回复：{answer.text}</p>}
       </motion.div>
+      </div>
     </RevealSection>
   )
 }
@@ -636,31 +806,45 @@ function TravelGuides({ guides }) {
   return (
     <RevealSection className="section guideSection" id="guide">
       <motion.div className="sectionTitle" variants={revealVariants}>
-        <h2>昆明旅游攻略</h2>
-        <p>按常见住客节奏整理，减少来回折腾。</p>
+        <div>
+          <p className="sectionEyebrow">Kunming Routes</p>
+          <h2>从小院出发的昆明慢游</h2>
+          <p>按常见住客节奏整理，减少来回折腾。具体交通时间请以当天地图为准。</p>
+        </div>
       </motion.div>
-      <StaggerGroup className="guideList">
-        {guides.map((guide, index) => (
-          <motion.article className={`guideItem ${openIndex === index ? 'isExpanded' : ''}`} key={guide.title} variants={revealVariants}>
-            <button className="guideButton" type="button" onClick={() => setOpenIndex(openIndex === index ? null : index)}>
-              <div className="guideIcon">
-                {guide.title.includes('亲子') ? <Baby size={22} /> : <Sparkles size={22} />}
-              </div>
-              <div>
-                <h3>{guide.title}</h3>
-                <p className="routeText">{guide.route}</p>
-              </div>
-            </button>
-            <AnimatePresence initial={false}>
-              {openIndex === index && (
-                <motion.div className="guideDetail" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.32, ease }}>
-                  <p className="tipText">{guide.tip}</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.article>
-        ))}
-      </StaggerGroup>
+      <div className="guideLayout">
+        <motion.figure className="guideVisual" variants={revealVariants}>
+          <img src={lifestyleImages.dianchiSunset} alt="滇池日落路线氛围图" loading="lazy" decoding="async" width="1100" height="720" />
+          <figcaption>滇池日落 / Wikimedia Commons CC BY-SA</figcaption>
+        </motion.figure>
+        <StaggerGroup className="guideList">
+          {guides.map((guide, index) => (
+            <motion.article className={`guideItem ${openIndex === index ? 'isExpanded' : ''}`} key={guide.title} variants={revealVariants}>
+              <button className="guideButton" type="button" onClick={() => setOpenIndex(openIndex === index ? null : index)}>
+                <div className="guideIcon">
+                  {guide.title.includes('亲子') ? <Baby size={22} /> : <Sparkles size={22} />}
+                </div>
+                <div>
+                  <span>从民宿出发</span>
+                  <h3>{guide.title}</h3>
+                  <p className="routeText">{guide.route}</p>
+                </div>
+              </button>
+              <AnimatePresence initial={false}>
+                {openIndex === index && (
+                  <motion.div className="guideDetail" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.32, ease }}>
+                    <p className="tipText">{guide.tip}</p>
+                    <div className="guideMeta">
+                      <em>推荐时长：按当天节奏调整</em>
+                      <em>交通方式：打车 / 地铁 / 步行组合</em>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.article>
+          ))}
+        </StaggerGroup>
+      </div>
     </RevealSection>
   )
 }
@@ -669,8 +853,11 @@ function Transport({ items }) {
   return (
     <RevealSection className="section transportSection" id="transport">
       <motion.div className="sectionTitle" variants={revealVariants}>
-        <h2>交通信息</h2>
-        <p>到店与出游的常用路线，先有个时间概念。</p>
+        <div>
+          <p className="sectionEyebrow">Around Kunming</p>
+          <h2>周边景点与交通</h2>
+          <p>到店与出游的常用路线，先有个时间概念；高峰和天气变化请以地图为准。</p>
+        </div>
       </motion.div>
       <StaggerGroup className="transportGrid">
         {items.map((item) => {
@@ -686,6 +873,26 @@ function Transport({ items }) {
             </motion.article>
           )
         })}
+      </StaggerGroup>
+    </RevealSection>
+  )
+}
+
+function CustomerFaq() {
+  return (
+    <RevealSection className="section customerFaqSection" id="faq">
+      <motion.div className="sectionTitle sectionTitle--center" variants={revealVariants}>
+        <p className="sectionEyebrow">Before Booking</p>
+        <h2>常见问题与演示说明</h2>
+        <p>把边界讲清楚，比用虚假评价和订单量更重要。</p>
+      </motion.div>
+      <StaggerGroup className="customerFaqGrid">
+        {customerFaqs.map(([questionText, answerText]) => (
+          <motion.article key={questionText} variants={revealVariants}>
+            <h3>{questionText}</h3>
+            <p>{answerText}</p>
+          </motion.article>
+        ))}
       </StaggerGroup>
     </RevealSection>
   )
@@ -810,7 +1017,10 @@ function ContactFooter({ onWechat }) {
         </article>
       </div>
       <p className="footerCopyright">云栖小院智能接待功能演示，民宿名称、价格和联系方式均为演示数据。</p>
-      <a className="merchantEntryLink" href="/merchant/login">商家管理入口</a>
+      <div className="footerMinorLinks">
+        <a className="merchantEntryLink" href="/business">商家合作</a>
+        <a className="merchantEntryLink" href="/merchant/login">管理入口</a>
+      </div>
     </RevealSection>
   )
 }
@@ -830,11 +1040,17 @@ function HomePage() {
       <main>
         <Hero brand={homestay.brand} onContactChoice={openContactChoice} />
         <FeatureStrip />
+        <BrandStory />
+        <LifestyleSection />
         <Rooms rooms={homestay.rooms} onWechat={openWechat} />
+        <WhyChoose />
         <Consultation faq={homestay.faq} onWechat={openWechat} />
         <TravelGuides guides={homestay.travelGuides} />
         <Transport items={homestay.transport} />
+        <StayScenarios />
+        <CustomerFaq />
         <RevealSection className="closing" as="section">
+          <p className="sectionEyebrow">Book With Ease</p>
           <h2>想确认日期和房态？</h2>
           <p>直接电话或微信联系管家，告诉我们入住日期、人数和大概行程即可。我们将为你安排合适的房型，期待与你在云栖小院相遇。</p>
           <button type="button" className="closingCta" onClick={openContactChoice}>
